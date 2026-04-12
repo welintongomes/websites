@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gerenciador de Ferramentas</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='8' fill='%230071e3'/%3E%3Cpath d='M16 16h16v4H16zM16 24h16v4H16zM16 32h12v4H16z' fill='white'/%3E%3C/svg%3E">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f5f5f7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Sites Manager">
+
+    <script src="jszip.min.js"></script>
+
+    <style>
+        /* Design Clean Apple-like */
+        :root {
+            --bg-color: #f5f5f7;
+            --text-color: #1d1d1f;
+            --card-bg: #ffffff;
+            --primary-color: #0071e3;
+            --primary-hover: #0077ed;
+            --secondary-bg: #e8e8ed;
+            --secondary-hover: #d2d2d7;
+            --danger-color: #ff3b30;
+            --danger-bg: rgba(255, 59, 48, 0.1);
+            --border-color: #d2d2d7;
+            --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+            --radius: 18px;
+            --btn-radius: 12px;
+            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            padding-top: 90px;
+            padding-bottom: 160px; 
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background: rgba(245, 245, 247, 0.9);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 1000; padding: 6px 20px; text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 { font-size: 2em; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        .sites-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+
+        .site-card {
+            background: var(--card-bg); border-radius: var(--radius); padding: 10px 10px 10px 40px;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-soft);
+            transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column;
+        }
+        .site-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+        .site-card h3 { font-size: 1.4em; font-weight: 600; margin-bottom: 8px; color: var(--text-color); word-break: break-word; }
+        .site-card p { color: #555; font-size: 1em; line-height: 1.5; margin-bottom: 20px; flex-grow: 1; }
+        .site-actions { display: flex; gap: 8px; flex-wrap: nowrap; }
+
+        /* TOOLBAR */
+        .toolbar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 2000; padding: 15px 20px; padding-bottom: max(15px, env(safe-area-inset-bottom));
+            display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center;
+            border-top: 1px solid var(--border-color); box-shadow: 0 -4px 15px rgba(0,0,0,0.05); pointer-events: auto;
+        }
+        .search-container { position: relative; flex: 1 1 100%; left: 114px; }
+        #searchInput {
+            width: 70%; padding: 12px 8px 12px 40px; border-radius: var(--btn-radius);
+            border: 1px solid var(--border-color); background: var(--secondary-bg); color: var(--text-color);
+            font-size: 16px; font-family: var(--font-family); outline: none; transition: all 0.2s ease;
+        }
+        #searchInput:focus { background: var(--card-bg); border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2); }
+        #clearSearch {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: #86868b; cursor: pointer; display: none; font-size: 24px; font-weight: bold; padding: 5px;
+        }
+
+        .btn {
+            padding: 10px 18px; border-radius: var(--btn-radius); border: none; cursor: pointer;
+            font-size: 14px; font-weight: 600; font-family: var(--font-family); transition: all 0.2s ease;
+            display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--secondary-bg); color: var(--text-color); padding: 6px 18px;}
+        .btn-secondary:hover { background: var(--secondary-hover); }
+        .btn-danger { background: var(--danger-bg); color: var(--danger-color); padding: 6px 18px;}
+        .btn-danger:hover { background: var(--danger-color); color: white; }
+
+        .floating-actions {  position: fixed; bottom: 54px; left: 6px; display: flex; flex-direction: row-reverse; gap: 9px; z-index: 2001;}
+        .fab-btn {
+            width: 56px; height: 56px; border-radius: 50%; border: none; color: white; font-size: 24px;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .fab-btn:hover { transform: scale(1.08); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); }
+        .fab-add { background: var(--primary-color); }
+        .fab-voice { background: #34c759; transition: all 0.3s ease; }
+
+        @keyframes pulse-record {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+        }
+        .fab-voice.listening { background: var(--danger-color); animation: pulse-record 1.5s infinite; }
+
+        /* MODAIS */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 4000;
+        }
+        .modal-content {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--card-bg); padding: 30px; border-radius: 20px;
+            width: 90%; max-width: 800px; max-height: 94vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        .modal-content h2 { font-weight: 600; margin-bottom: 20px; color: var(--text-color); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px; }
+        .form-group input[type="text"] {
+            width: 100%; padding: 12px 12px 12px 33px; border: 1px solid var(--border-color); border-radius: var(--btn-radius);
+            font-size: 15px; font-family: var(--font-family); background: #fafafa; outline: none; transition: all 0.2s;
+        }
+        .form-group input[type="text"]:focus { border-color: var(--primary-color); background: #fff; box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1); }
+        
+        /* BARRA DE BUSCA INTERNA DO EDITOR DE CÓDIGO (COM O X) */
+        .code-search-bar {
+            display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
+            background: var(--secondary-bg); padding: 8px; border-radius: 8px;
+            position: relative;
+        }
+        .code-search-bar input {
+            flex: 1; padding: 8px 30px 8px 12px; 
+            border: 1px solid var(--border-color); border-radius: 6px;
+            font-size: 14px; outline: none;
+        }
+        #clearCodeSearchBtn {
+            position: absolute;
+            left: calc(22.8% - 150px);
+            background: none; border: none; font-size: 18px; font-weight: bold;
+            color: #86868b; cursor: pointer; padding: 5px; display: none;
+        }
+        .code-search-bar span { font-size: 13px; color: #555; min-width: 40px; text-align: center; font-weight: 600; }
+        .code-search-bar button.nav-btn {
+            background: #fff; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 12px;
+            cursor: pointer; font-size: 16px; font-weight: bold; color: var(--text-color); display: flex; align-items: center; justify-content: center;
+        }
+        .code-search-bar button.nav-btn:active { background: #e8e8ed; }
+
+        /* A MÁGICA: O EDITOR COM HOLOGRAMA DE FUNDO */
+        .editor-wrapper {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            max-height: 35vh;
+            border: 1px solid var(--border-color);
+            border-radius: var(--btn-radius);
+            background: #fafafa;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .editor-wrapper:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+            background: #fff;
+        }
+        
+        /* O Fundo Transparente (Holograma) e o Textarea recebem EXATAMENTE os mesmos estilos físicos */
+        #siteCodeBackdrop, #siteCode {
+            width: 100%;
+            height: 100%;
+            padding: 12px;
+            font-family: "SF Mono", "Courier New", monospace;
+            font-size: 14px;
+            line-height: 20px;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
+            position: absolute;
+            top: 0; left: 0;
+            border: none;
+            outline: none;
+            margin: 0;
+            resize: none;
+        }
+        
+        /* O Holograma fica atrás, invisível, exceto pelos marca-textos */
+        #siteCodeBackdrop {
+            color: transparent; 
+            z-index: 1;
+            pointer-events: none; /* Deixa o clique passar direto pro textarea */
+        }
+        
+        /* O Textarea verdadeiro fica na frente, transparente */
+        #siteCode {
+            background: transparent;
+            color: var(--text-color);
+            z-index: 2;
+        }
+
+        /* Estilo do Marca-Texto */
+        .mark-match {
+            background-color: rgba(255, 235, 59, 0.6); /* Amarelo translúcido */
+            color: transparent;
+            border-radius: 3px;
+        }
+        .mark-active {
+            background-color: rgba(255, 152, 0, 0.9); /* Laranja forte para a palavra atual */
+            color: transparent;
+            box-shadow: 0 0 0 2px #ff9800; /* Destaca ainda mais a borda */
+        }
+
+        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+        /* TELA CHEIA (IFRAME) */
+        .fullscreen-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; }
+        .site-frame { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 32px - env(safe-area-inset-bottom, 0px)); border: none; background: white; z-index: 1; }
+        
+        .fullscreen-header {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 32px;
+            background: rgba(245, 245, 247, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
+            padding: 0 20px; padding-bottom: env(safe-area-inset-bottom);
+            display: flex; justify-content: space-between; align-items: center; 
+            border-top: 1px solid var(--border-color); box-shadow: 0 -4px 10px rgba(0,0,0,0.05); z-index: 10;
+        }
+        .fullscreen-header h2 {
+            font-size: 16px; font-weight: 600; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 15px; flex: 1; text-align: center;
+        }
+        #offlineIndicator { border-radius: 20px; font-size: 12px; padding: 4px 12px; background: #ff9f0a; color: white; font-weight: 600; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
+
+        @media (max-width: 768px) { 
+            .toolbar .btn { flex: 1; justify-content: center; } 
+            #clearCodeSearchBtn { left: calc(49% - 135px); } 
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Ferramentas</h1>
+        <div id="offlineIndicator" style="display: none;">📱 Offline</div>
+    </div>
+
+    <div class="container">
+        <div class="sites-grid" id="sitesGrid"></div>
+    </div>
+
+    <div class="toolbar">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Pesquisar ferramentas...">
+            <button id="clearSearch">×</button>
+        </div>
+        <button class="btn btn-secondary" onclick="openExportModal()">💾 Salvar Tudo</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('importFileMaster').click()">📂 Importar</button>
+        <input type="file" id="importFileMaster" accept=".json, .zip" style="display: none;" onchange="handleUniversalImport(event)">
+    </div>
+
+    <div class="floating-actions">
+        <button class="fab-btn fab-voice" id="btnVoice" onclick="startVoiceSearch()" title="Pesquisa por voz">🎤</button>
+        <button class="fab-btn fab-add" onclick="openAddSiteModal()" title="Adicionar Site">＋</button>
+    </div>
+
+    <div class="modal" id="exportModal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2>Como deseja salvar tudo?</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn btn-primary" onclick="exportSitesZip()">📦 Salvar como ZIP (Recomendado)</button>
+                <button class="btn btn-secondary" onclick="exportSitesJSON()">📄 Salvar como JSON</button>
+                <button class="btn btn-danger" onclick="closeExportModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="exportSingleModal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h2>Salvar Ferramenta</h2>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn btn-primary" onclick="executeExportSingle('html')">🌐 Baixar página (HTML)</button>
+                <button class="btn btn-secondary" onclick="executeExportSingle('zip')">🗜️ Baixar compactado (ZIP)</button>
+                <button class="btn btn-secondary" onclick="executeExportSingle('json')">📦 Baixar dados (JSON)</button>
+                <button class="btn btn-danger" onclick="closeExportSingleModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="siteModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Nova Ferramenta</h2>
+            <form id="siteForm">
+                <div class="form-group">
+                    <label for="siteName">Nome</label>
+                    <input type="text" id="siteName" required>
+                </div>
+                <div class="form-group">
+                    <label for="siteDescription">Descrição</label>
+                    <input type="text" id="siteDescription">
+                </div>
+                
+                <div class="form-group">
+                    <label>Código HTML Original</label>
+                    
+                    <div class="code-search-bar">
+                        <input type="text" id="codeSearchInput" placeholder="Encontrar no código..." oninput="performCodeSearch()">
+                        <button type="button" id="clearCodeSearchBtn" onclick="resetCodeSearch()" title="Limpar Busca">×</button>
+                        <span id="codeSearchCount">0/0</span>
+                        <button type="button" class="nav-btn" onclick="prevCodeMatch()" title="Anterior">↑</button>
+                        <button type="button" class="nav-btn" onclick="nextCodeMatch()" title="Próximo">↓</button>
+                    </div>
+
+                    <div class="editor-wrapper">
+                        <div id="siteCodeBackdrop"></div>
+                        <textarea id="siteCode" placeholder="Cole aqui o código..." spellcheck="false"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeSiteModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <div class="fullscreen-header">
+            <button class="btn btn-danger" onclick="closeFullscreen()">Fechar</button>
+            <h2 id="fullscreenTitle">Ferramenta</h2>
+            <button class="btn btn-secondary" onclick="editCurrentSite()">Editar</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // VARIÁVEIS GLOBAIS
+        // ==========================================
+        const DB_NAME = 'MeusSitesWebDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'sites';
+
+        let currentPage = 0;
+        const ITEMS_PER_PAGE = 3;
+        let sites = [];
+        let currentSiteIndex = -1;
+        let editingIndex = -1;
+        let lastOpenedSiteIndex = -1;
+        let siteToExportIndex = -1;
+        
+        let codeMatchPositions = [];
+        let currentCodeMatchIndex = -1;
+
+        // ==========================================
+        // LÓGICA DO EDITOR NATIVO (O HOLOGRAMA)
+        // ==========================================
+        const textarea = document.getElementById('siteCode');
+        const backdrop = document.getElementById('siteCodeBackdrop');
+        // Mantém as duas camadas perfeitamente sincronizadas ao rolar
+        textarea.addEventListener('scroll', () => {
+            backdrop.scrollTop = textarea.scrollTop;
+            backdrop.scrollLeft = textarea.scrollLeft;
+        });
+
+        // Limpa a busca se o usuário começar a apagar ou digitar coisas
+        textarea.addEventListener('input', () => {
+            if (codeMatchPositions.length > 0) resetCodeSearch();
+        });
+
+        function resetCodeSearch() {
+            const input = document.getElementById('codeSearchInput');
+            input.value = '';
+            document.getElementById('codeSearchCount').textContent = '0/0';
+            document.getElementById('clearCodeSearchBtn').style.display = 'none';
+            codeMatchPositions = [];
+            currentCodeMatchIndex = -1;
+            backdrop.innerHTML = ''; // Limpa as marcas laranjas do holograma 
+        }
+
+        // Função vital para colocar o código HTML em uma div sem quebrar a tela
+        function escapeHtml(unsafe) {
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function performCodeSearch() {
+            codeMatchPositions = [];
+            currentCodeMatchIndex = -1;
+
+            const query = document.getElementById('codeSearchInput').value.toLowerCase();
+            const countDisplay = document.getElementById('codeSearchCount');
+            const clearBtn = document.getElementById('clearCodeSearchBtn');
+            const text = textarea.value;
+            const lowerText = text.toLowerCase();
+
+            if (!query) {
+                resetCodeSearch();
+                return;
+            }
+
+            clearBtn.style.display = 'block';
+
+            let startIndex = 0;
+            let index;
+            while ((index = lowerText.indexOf(query, startIndex)) > -1) {
+                codeMatchPositions.push({ start: index, end: index + query.length });
+                startIndex = index + query.length;
+            }
+
+            if (codeMatchPositions.length > 0) {
+                // Desenha o Holograma com os marca-textos onde a palavra foi encontrada
+                let backdropHtml = '';
+                let lastPos = 0;
+                codeMatchPositions.forEach((pos, i) => {
+                    backdropHtml += escapeHtml(text.substring(lastPos, pos.start));
+                    backdropHtml += `<mark class="mark-match" id="match-${i}">${escapeHtml(text.substring(pos.start, pos.end))}</mark>`;
+                    lastPos = pos.end;
+                });
+                backdropHtml += escapeHtml(text.substring(lastPos));
+                // Ajuste para última linha vazia
+                if (text.endsWith('\n')) { backdropHtml += '\n '; }
+
+                backdrop.innerHTML = backdropHtml;
+                currentCodeMatchIndex = 0;
+                highlightCurrentCodeMatch(); 
+            } else {
+                backdrop.innerHTML = escapeHtml(text); // Só repassa o texto normal se não achar nada
+                countDisplay.textContent = '0/0';
+            }
+        }
+
+        function highlightCurrentCodeMatch() {
+            if (codeMatchPositions.length === 0) return;
+            const countDisplay = document.getElementById('codeSearchCount');
+            countDisplay.textContent = `${currentCodeMatchIndex + 1}/${codeMatchPositions.length}`;
+
+            // Remove a cor Laranja Forte de todos os marca-textos
+            document.querySelectorAll('.mark-match').forEach(el => el.classList.remove('mark-active'));
+            
+            // Pinta apenas a palavra atual de Laranja Forte
+            const currentMark = document.getElementById(`match-${currentCodeMatchIndex}`);
+            if (currentMark) {
+                currentMark.classList.add('mark-active');
+                
+                // MÁGICA: Manda a tela rolar EXATAMENTE para o elemento físico laranja (Funciona 100% no celular)
+                const topPos = currentMark.offsetTop - (backdrop.clientHeight / 2) + (currentMark.clientHeight / 2);
+                const leftPos = currentMark.offsetLeft - (backdrop.clientWidth / 2);
+                
+                // Move o fundo...
+                backdrop.scrollTop = topPos;
+                backdrop.scrollLeft = leftPos;
+                
+                // ...e obriga o código da frente a seguir o fundo. Perfeito.
+                textarea.scrollTop = backdrop.scrollTop;
+                textarea.scrollLeft = backdrop.scrollLeft;
+            }
+        }
+
+        function nextCodeMatch() {
+            if (codeMatchPositions.length === 0) return;
+            currentCodeMatchIndex = (currentCodeMatchIndex + 1) % codeMatchPositions.length;
+            highlightCurrentCodeMatch(); 
+        }
+
+        function prevCodeMatch() {
+            if (codeMatchPositions.length === 0) return;
+            currentCodeMatchIndex = (currentCodeMatchIndex - 1 + codeMatchPositions.length) % codeMatchPositions.length;
+            highlightCurrentCodeMatch();
+        }
+
+        // TABS nativos funcionam normais no novo editor
+        document.getElementById('siteCode').addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                // Sincroniza o holograma
+                if(backdrop.innerHTML !== '') { backdrop.innerHTML = escapeHtml(this.value); resetCodeSearch(); }
+            }
+        });
+
+        // ==========================================
+        // BANCO DE DADOS E CORE
+        // ==========================================
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+            });
+        }
+
+        function normalizeText(t) { return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+async function loadSites() {
+            try {
+                const db = await initDB();
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    if (request.result.length > 0) {
+                        sites = request.result.map(item => ({
+                            name: item.name, description: item.description, code: item.code,
+                            _searchIndex: normalizeText(`${item.name} ${item.description || ''}`)
+                        }));
+                    } else {
+                        sites = [{
+                            name: "App Exemplo", description: "Exemplo inicial",
+                            code: `<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n  <style>\n    body { font-family: sans-serif; text-align: center; padding: 50px; }\n    h1 { color: #0071e3; }\n  </style>\n</head>\n<body>\n  <h1>Olá!</h1>\n  <p>Edite este código para testar.</p>\n</body>\n</html>`,
+                            _searchIndex: normalizeText("App Exemplo Exemplo inicial")
+                        }];
+                        saveSites();
+                    }
+
+                    const savedLastOpened = localStorage.getItem('lastOpenedSiteIndex');
+                    if (savedLastOpened !== null) {
+                        const index = parseInt(savedLastOpened);
+                        if (index >= 0 && index < sites.length) lastOpenedSiteIndex = index;
+                    }
+                    renderSites();
+                };
+            } catch (error) { renderSites(); }
+        }
+        
+        async function saveSites() {
+            return new Promise(async (resolve) => {
+                sites.forEach(site => { site._searchIndex = normalizeText(`${site.name} ${site.description || ''}`); });
+                const db = await initDB();
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                store.clear();
+                sites.forEach(site => store.add(site));
+                
+                transaction.oncomplete = () => { resolve(); };
+            });
+        }
+
+        // ==========================================
+        // RENDERIZAÇÃO
+        // ==========================================
+        function renderSites(append = false) {
+            const grid = document.getElementById('sitesGrid');
+            if (!append) { grid.innerHTML = ''; currentPage = 0; }
+
+            let sitesToRender = sites.slice().reverse();
+            if (lastOpenedSiteIndex >= 0) {
+                const lastOpenedSite = sites[lastOpenedSiteIndex];
+                sitesToRender = sitesToRender.filter(site => site !== lastOpenedSite);
+                sitesToRender.unshift(lastOpenedSite);
+            }
+
+            const start = currentPage * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const pageItems = sitesToRender.slice(start, end);
+
+            pageItems.forEach((site) => {
+                const index = sites.indexOf(site);
+                const card = document.createElement('div');
+                card.className = 'site-card';
+                card.innerHTML = `
+                    <h3>${site.name}</h3>
+                    <p>${site.description || 'Sem descrição'}</p>
+                    <div class="site-actions">
+                        <button class="btn btn-primary" onclick="openSite(${index})">Abrir</button>
+                        <button class="btn btn-secondary" onclick="editSite(${index})">Editar</button>
+                        <button class="btn btn-secondary" onclick="openExportSingleModal(${index})">Salvar</button>
+                        <button class="btn btn-danger" onclick="deleteSite(${index})">Excluir</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            if (end < sitesToRender.length) {
+                const loadBtn = document.createElement('button');
+                loadBtn.className = 'btn btn-secondary';
+                loadBtn.textContent = `Carregar mais (${sitesToRender.length - end})`;
+                loadBtn.style.cssText = 'width:100%; grid-column: 1/-1; padding: 8px; margin-top: 10px; border: 1px solid var(--border-color);';
+                loadBtn.onclick = () => { currentPage++; loadBtn.remove(); renderSites(true); };
+                grid.appendChild(loadBtn);
+            }
+        }
+
+        function filterSites(searchTerm) {
+            if (!searchTerm.trim()) { renderSites(); return; }
+            const searchWords = searchTerm.trim().split(/\s+/).map(word => normalizeText(word));
+            const filteredSites = sites.filter(site => { return searchWords.every(word => site._searchIndex.includes(word)); });
+
+            const grid = document.getElementById('sitesGrid');
+            grid.innerHTML = '';
+            if (filteredSites.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: #86868b; grid-column: 1/-1; padding: 40px;">Nada encontrado.</p>';
+                return;
+            }
+
+            let sitesToRender = filteredSites.slice().reverse().slice(0, 50); 
+            sitesToRender.forEach((site) => {
+                const originalIndex = sites.indexOf(site);
+                const card = document.createElement('div');
+                card.className = 'site-card';
+                card.innerHTML = `
+                    <h3>${site.name}</h3>
+                    <p>${site.description || 'Sem descrição'}</p>
+                    <div class="site-actions">
+                        <button class="btn btn-primary" onclick="openSite(${originalIndex})">Abrir</button>
+                        <button class="btn btn-secondary" onclick="editSite(${originalIndex})">Editar</button>
+                        <button class="btn btn-secondary" onclick="openExportSingleModal(${originalIndex})">Salvar</button>
+                        <button class="btn btn-danger" onclick="deleteSite(${originalIndex})">Excluir</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+// ==========================================
+        // CÃO DE GUARDA (TOTALMENTE OFFLINE SPA)
+        // ==========================================
+        function triggerRecoveryReload(index) {
+            let tentativas = parseInt(sessionStorage.getItem('watchdog_' + index) || '0');
+            if (tentativas >= 1) {
+                console.warn('Watchdog abortado para evitar loop.');
+                return;
+            }
+            
+            sessionStorage.setItem('watchdog_' + index, '1'); 
+
+            // Cria a tela de "Otimizando..." via JS puro
+            const loader = document.createElement('div');
+            loader.id = 'tempLoader';
+            loader.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(245,245,247,0.98);backdrop-filter:blur(10px);z-index:9999;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;color:#1d1d1f;';
+            loader.textContent = 'Otimizando ambiente...';
+            document.body.appendChild(loader);
+
+            // Reseta apenas o Iframe, sem dar reload na página do navegador
+            setTimeout(() => { 
+                const oldIframe = document.getElementById('siteFrame');
+                if (oldIframe) { 
+                    oldIframe.srcdoc = ''; // Esvazia a memória
+                    oldIframe.remove(); // Destrói o iframe antigo
+                }
+                openSite(index); // Tenta abrir a ferramenta de novo internamente
+                
+                setTimeout(() => { if(document.getElementById('tempLoader')) document.getElementById('tempLoader').remove(); }, 500);
+            }, 300);
+        }
+
+        // ==========================================
+        // AÇÕES (O TRUQUE FINAL DO IFRAME AQUI)
+        // ==========================================
+
+function openSite(index) {
+            currentSiteIndex = index; lastOpenedSiteIndex = index;
+            localStorage.setItem('lastOpenedSiteIndex', index.toString());
+            const site = sites[index];
+            document.getElementById('fullscreenTitle').textContent = site.name;
+            
+            const overlay = document.getElementById('fullscreenOverlay');
+            overlay.style.display = 'block';
+
+            const oldIframe = document.getElementById('siteFrame');
+            if (oldIframe) { oldIframe.remove(); }
+
+            const newIframe = document.createElement('iframe');
+            newIframe.id = 'siteFrame';
+            newIframe.className = 'site-frame';
+            
+            overlay.insertBefore(newIframe, overlay.querySelector('.fullscreen-header'));
+            void newIframe.offsetWidth;
+            
+            setTimeout(() => {
+                newIframe.srcdoc = site.code;
+
+                // --- WATCHDOG (Verifica Tela Branca) ---
+                setTimeout(() => {
+                    try {
+                        const doc = newIframe.contentDocument || newIframe.contentWindow.document;
+                        // Se o código tem mais de 50 letras, mas a tela do iframe está vazia (falha de renderização)
+                        if (site.code.length > 50 && (!doc || !doc.body || doc.body.innerHTML.trim().length < 15)) {
+                            console.warn('Tela branca detectada no Iframe!');
+                            triggerRecoveryReload(index);
+                        } else {
+                            // Se abriu com sucesso, zera a trava do Cão de Guarda
+                            sessionStorage.removeItem('watchdog_' + index);
+                        }
+                    } catch (e) {
+                        // Se der erro de Cross-Origin, significa que carregou scripts externos com sucesso
+                        sessionStorage.removeItem('watchdog_' + index);
+                    }
+                }, 1000); // 1 segundo é o tempo perfeito para o celular tentar processar
+
+            }, 10);
+        }
+
+        function closeFullscreen() {
+            document.getElementById('fullscreenOverlay').style.display = 'none';
+            if(currentSiteIndex >= 0) sessionStorage.removeItem('watchdog_' + currentSiteIndex);
+            
+            const oldIframe = document.getElementById('siteFrame');
+            if (oldIframe) { 
+                oldIframe.srcdoc = ''; // Esvazia a memória internamente
+                oldIframe.remove(); // Remove o elemento físico
+            }
+            // NUNCA MAIS DAR reload() aqui! Apenas renderiza a grade novamente.
+            renderSites(); 
+        }
+
+        function openAddSiteModal() {
+            editingIndex = -1;
+            document.getElementById('modalTitle').textContent = 'Nova Ferramenta';
+            document.getElementById('siteName').value = '';
+            document.getElementById('siteDescription').value = '';
+            
+            resetCodeSearch(); 
+            document.getElementById('siteCode').value = ''; 
+            document.getElementById('siteModal').style.display = 'block';
+        }
+
+        function editSite(index) {
+            if (index < 0 || index >= sites.length) return;
+            editingIndex = index;
+            document.getElementById('modalTitle').textContent = 'Editar Ferramenta';
+            document.getElementById('siteName').value = sites[index].name;
+            document.getElementById('siteDescription').value = sites[index].description || '';
+            
+            resetCodeSearch(); 
+            document.getElementById('siteCode').value = sites[index].code; 
+            document.getElementById('siteModal').style.display = 'block';
+        }
+
+        function deleteSite(index) {
+            if (confirm(`Excluir permanentemente?`)) {
+                sites.splice(index, 1);
+                if (lastOpenedSiteIndex === index) { lastOpenedSiteIndex = -1; localStorage.removeItem('lastOpenedSiteIndex'); }
+                else if (lastOpenedSiteIndex > index) { lastOpenedSiteIndex--; localStorage.setItem('lastOpenedSiteIndex', lastOpenedSiteIndex); }
+                saveSites(); renderSites();
+            }
+        }
+
+        function editCurrentSite() {
+            if (currentSiteIndex >= 0) {
+                const idx = currentSiteIndex;
+                
+                // 1. Esconde a tela cheia sem dar reload
+                document.getElementById('fullscreenOverlay').style.display = 'none';
+                
+                // 2. Destrói o iframe para limpar a memória do celular
+                const oldIframe = document.getElementById('siteFrame');
+                if (oldIframe) { oldIframe.remove(); }
+                
+                // 3. Abre o painel de edição instantaneamente
+                editSite(idx); 
+            }
+        }
+
+        function closeSiteModal() { document.getElementById('siteModal').style.display = 'none'; }
+
+        document.getElementById('siteForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const textareaValue = document.getElementById('siteCode').value;
+            if (!textareaValue.trim()) { alert("O código não pode estar vazio."); return; }
+
+            const siteData = {
+                name: document.getElementById('siteName').value,
+                description: document.getElementById('siteDescription').value,
+                code: textareaValue
+            };
+            if (editingIndex >= 0) sites[editingIndex] = siteData;
+            else sites.push(siteData);
+            
+            closeSiteModal();
+            
+            await saveSites();
+            renderSites(); // Atualiza a tela instantaneamente sem reload
+        });
+
+        window.addEventListener('click', function (e) {
+            if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+        });
+
+        // ==========================================
+        // BUSCA PRINCIPAL E VOZ
+        // ==========================================
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            const term = e.target.value;
+            document.getElementById('clearSearch').style.display = term.trim() ? 'block' : 'none';
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => filterSites(term), 300);
+        });
+
+        document.getElementById('clearSearch').addEventListener('click', function (e) {
+            e.preventDefault(); 
+            const input = document.getElementById('searchInput');
+            input.value = ''; this.style.display = 'none'; renderSites(); input.blur(); 
+        });
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR'; recognition.interimResults = false; recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() { const btn = document.getElementById('btnVoice'); if(btn) btn.classList.add('listening'); };
+            recognition.onresult = function (e) {
+                const transcript = e.results[0][0].transcript.trim();
+                document.getElementById('searchInput').value = transcript;
+                document.getElementById('clearSearch').style.display = 'block';
+                filterSites(transcript);
+            };
+            recognition.onend = function() { const btn = document.getElementById('btnVoice'); if(btn) btn.classList.remove('listening'); };
+            recognition.onerror = function(event) {
+                const btn = document.getElementById('btnVoice'); if(btn) btn.classList.remove('listening');
+                let msg = 'Erro no microfone: ' + event.error;
+                if(event.error === 'not-allowed') msg = 'Acesso ao microfone negado.\n\nNo celular, o navegador EXIGE que o site esteja rodando em uma conexão segura (HTTPS / cadeado) para usar voz.';
+                alert(msg);
+            };
+            window.startVoiceSearch = function() { try { recognition.start(); } catch(e) { console.log("Microfone em uso."); } }
+        } else {
+            window.startVoiceSearch = function() { alert('Busca por voz não suportada ou requer conexão segura (HTTPS).'); }
+        }
+
+        // ==========================================
+        // EXPORTAR / IMPORTAR
+        // ==========================================
+        function sanitizeFilename(name) { return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); }
+        function openExportModal() { document.getElementById('exportModal').style.display = 'block'; }
+        function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
+
+        function exportSitesJSON() {
+            const exportData = sites.map(({_searchIndex, ...rest}) => rest);
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'backup_ferramentas.json'; link.click();
+            closeExportModal();
+        }
+
+        function exportSitesZip() {
+            if (typeof JSZip === 'undefined') { alert('Erro: JSZip não carregado do arquivo local jszip.min.js.'); return; }
+            const zip = new JSZip();
+            const exportData = sites.map(({_searchIndex, ...rest}) => rest);
+            zip.file("sites_backup.json", JSON.stringify(exportData, null, 2));
+            sites.forEach(site => zip.file(`${sanitizeFilename(site.name)}.html`, site.code));
+            zip.generateAsync({ type: "blob" }).then(content => {
+                const link = document.createElement('a'); link.href = URL.createObjectURL(content); link.download = "minhas_ferramentas.zip"; link.click();
+            });
+            closeExportModal();
+        }
+
+        function openExportSingleModal(index) { siteToExportIndex = index; document.getElementById('exportSingleModal').style.display = 'block'; }
+        function closeExportSingleModal() { siteToExportIndex = -1; document.getElementById('exportSingleModal').style.display = 'none'; }
+
+        function executeExportSingle(format) {
+            if (siteToExportIndex < 0 || siteToExportIndex >= sites.length) return;
+            const site = sites[siteToExportIndex];
+            const { _searchIndex, ...cleanSite } = site; 
+            const safeName = sanitizeFilename(site.name);
+            const link = document.createElement('a');
+
+            if (format === 'html') {
+                const blob = new Blob([site.code], { type: 'text/html' });
+                link.href = URL.createObjectURL(blob); link.download = `${safeName}.html`; link.click();
+            } else if (format === 'json') {
+                const blob = new Blob([JSON.stringify([cleanSite], null, 2)], { type: 'application/json' });
+                link.href = URL.createObjectURL(blob); link.download = `${safeName}.json`; link.click();
+            } else if (format === 'zip') {
+                if (typeof JSZip === 'undefined') return;
+                const zip = new JSZip();
+                zip.file(`${safeName}.html`, site.code);
+                zip.file(`${safeName}_backup.json`, JSON.stringify([cleanSite], null, 2));
+                zip.generateAsync({ type: "blob" }).then(content => { link.href = URL.createObjectURL(content); link.download = `${safeName}.zip`; link.click(); });
+            }
+            closeExportSingleModal();
+        }
+
+        function handleUniversalImport(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'json') processJSONImport(file);
+            else if (ext === 'zip') processZIPImport(file);
+            else alert("Formato inválido. Use .zip ou .json");
+            event.target.value = '';
+        }
+
+        function processJSONImport(file) {
+            const reader = new FileReader();
+            reader.onload = async e => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        if (confirm('Misturar aos existentes?\n[OK] = Sim\n[Cancelar] = Substituir tudo')) sites = sites.concat(imported);
+                        else sites = imported;
+                        await saveSites(); 
+                        renderSites(); // Atualiza a tela sem recarregar o navegador
+                    } else alert('JSON inválido!');
+                } catch (err) { alert('Erro: ' + err.message); }
+            };
+            reader.readAsText(file);
+        }
+
+        async function processZIPImport(file) {
+            if (typeof JSZip === 'undefined') return;
+            try {
+                const zip = new JSZip();
+                const contents = await zip.loadAsync(file);
+                let backupFile = Object.keys(contents.files).find(n => n.endsWith('_backup.json') || n === 'sites_backup.json');
+
+                if (backupFile) {
+                    const text = await contents.files[backupFile].async("string");
+                    const imported = JSON.parse(text);
+                    if (Array.isArray(imported)) {
+                        let msg = imported.length === 1 ? `Importar backup de 1 ferramenta?` : 'Substituir tudo pelo backup completo?';
+                        if (confirm(msg)) {
+                            if (imported.length === 1) sites = sites.concat(imported);
+                            else sites = imported;
+                            await saveSites(); 
+                            renderSites(); // Atualiza a tela sem recarregar o navegador
+                        }
+                    }
+                } else {
+                    const newSites = [];
+                    for (let name of Object.keys(contents.files)) {
+                        if (name.endsWith('.html')) {
+                            const html = await contents.files[name].async("string");
+                            newSites.push({ name: name.replace('.html', '').replace(/_/g, ' '), description: 'Importado', code: html });
+                        }
+                    }
+                    if (newSites.length > 0 && confirm(`Adicionar ${newSites.length} HTMLs?`)) { 
+                        sites = sites.concat(newSites); 
+                        await saveSites(); 
+                        renderSites(); // Atualiza a tela sem recarregar o navegador
+                    }
+                }
+            } catch (err) {}
+        }
+
+        // ==========================================
+        // INIT
+        // ==========================================
+        function updateOnlineStatus() { document.getElementById('offlineIndicator').style.display = navigator.onLine ? 'none' : 'block'; }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        window.addEventListener('load', () => { updateOnlineStatus(); loadSites(); });
+    </script>
+</body>
+</html>
