@@ -363,7 +363,7 @@
         // ==========================================
         // VARIÁVEIS GLOBAIS
         // ==========================================
-        const DB_NAME = 'WebSitesDB';
+        const DB_NAME = 'MeusSitesWebDB';
         const DB_VERSION = 1;
         const STORE_NAME = 'sites';
 
@@ -531,7 +531,7 @@
 
         function normalizeText(t) { return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
 
-        async function loadSites() {
+async function loadSites() {
             try {
                 const db = await initDB();
                 const transaction = db.transaction([STORE_NAME], 'readonly');
@@ -559,10 +559,11 @@
                         if (index >= 0 && index < sites.length) lastOpenedSiteIndex = index;
                     }
                     renderSites();
+
                 };
             } catch (error) { renderSites(); }
         }
-
+        
         async function saveSites() {
             return new Promise(async (resolve) => {
                 sites.forEach(site => { site._searchIndex = normalizeText(`${site.name} ${site.description || ''}`); });
@@ -652,11 +653,43 @@
             });
         }
 
+// ==========================================
+        // CÃO DE GUARDA (TOTALMENTE OFFLINE SPA)
+        // ==========================================
+        function triggerRecoveryReload(index) {
+            let tentativas = parseInt(sessionStorage.getItem('watchdog_' + index) || '0');
+            if (tentativas >= 1) {
+                console.warn('Watchdog abortado para evitar loop.');
+                return;
+            }
+            
+            sessionStorage.setItem('watchdog_' + index, '1'); 
+
+            // Cria a tela de "Otimizando..." via JS puro
+            const loader = document.createElement('div');
+            loader.id = 'tempLoader';
+            loader.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(245,245,247,0.98);backdrop-filter:blur(10px);z-index:9999;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;color:#1d1d1f;';
+            loader.textContent = 'Otimizando ambiente...';
+            document.body.appendChild(loader);
+
+            // Reseta apenas o Iframe, sem dar reload na página do navegador
+            setTimeout(() => { 
+                const oldIframe = document.getElementById('siteFrame');
+                if (oldIframe) { 
+                    oldIframe.srcdoc = ''; // Esvazia a memória
+                    oldIframe.remove(); // Destrói o iframe antigo
+                }
+                openSite(index); // Tenta abrir a ferramenta de novo internamente
+                
+                setTimeout(() => { if(document.getElementById('tempLoader')) document.getElementById('tempLoader').remove(); }, 500);
+            }, 300);
+        }
+
         // ==========================================
         // AÇÕES (O TRUQUE FINAL DO IFRAME AQUI)
         // ==========================================
 
-        function openSite(index) {
+function openSite(index) {
             currentSiteIndex = index; lastOpenedSiteIndex = index;
             localStorage.setItem('lastOpenedSiteIndex', index.toString());
             const site = sites[index];
@@ -677,13 +710,39 @@
             
             setTimeout(() => {
                 newIframe.srcdoc = site.code;
+
+                // --- WATCHDOG (Verifica Tela Branca) ---
+                setTimeout(() => {
+                    try {
+                        const doc = newIframe.contentDocument || newIframe.contentWindow.document;
+                        // Se o código tem mais de 50 letras, mas a tela do iframe está vazia (falha de renderização)
+                        if (site.code.length > 50 && (!doc || !doc.body || doc.body.innerHTML.trim().length < 15)) {
+                            console.warn('Tela branca detectada no Iframe!');
+                            triggerRecoveryReload(index);
+                        } else {
+                            // Se abriu com sucesso, zera a trava do Cão de Guarda
+                            sessionStorage.removeItem('watchdog_' + index);
+                        }
+                    } catch (e) {
+                        // Se der erro de Cross-Origin, significa que carregou scripts externos com sucesso
+                        sessionStorage.removeItem('watchdog_' + index);
+                    }
+                }, 1000); // 1 segundo é o tempo perfeito para o celular tentar processar
+
             }, 10);
         }
 
         function closeFullscreen() {
             document.getElementById('fullscreenOverlay').style.display = 'none';
-            // Reload super rápido direto na veia, sem frescura visual
-            window.location.reload();
+            if(currentSiteIndex >= 0) sessionStorage.removeItem('watchdog_' + currentSiteIndex);
+            
+            const oldIframe = document.getElementById('siteFrame');
+            if (oldIframe) { 
+                oldIframe.srcdoc = ''; // Esvazia a memória internamente
+                oldIframe.remove(); // Remove o elemento físico
+            }
+            // NUNCA MAIS DAR reload() aqui! Apenas renderiza a grade novamente.
+            renderSites(); 
         }
 
         function openAddSiteModal() {
@@ -752,8 +811,7 @@
             closeSiteModal();
             
             await saveSites();
-            // Reload instantâneo
-            window.location.reload();
+            renderSites(); // Atualiza a tela instantaneamente sem reload
         });
 
         window.addEventListener('click', function (e) {
@@ -871,7 +929,7 @@
                         if (confirm('Misturar aos existentes?\n[OK] = Sim\n[Cancelar] = Substituir tudo')) sites = sites.concat(imported);
                         else sites = imported;
                         await saveSites(); 
-                        window.location.reload(); 
+                        renderSites(); // Atualiza a tela sem recarregar o navegador
                     } else alert('JSON inválido!');
                 } catch (err) { alert('Erro: ' + err.message); }
             };
@@ -894,7 +952,7 @@
                             if (imported.length === 1) sites = sites.concat(imported);
                             else sites = imported;
                             await saveSites(); 
-                            window.location.reload();
+                            renderSites(); // Atualiza a tela sem recarregar o navegador
                         }
                     }
                 } else {
@@ -908,7 +966,7 @@
                     if (newSites.length > 0 && confirm(`Adicionar ${newSites.length} HTMLs?`)) { 
                         sites = sites.concat(newSites); 
                         await saveSites(); 
-                        window.location.reload(); 
+                        renderSites(); // Atualiza a tela sem recarregar o navegador
                     }
                 }
             } catch (err) {}
