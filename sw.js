@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sites-manager-v17';
+const CACHE_NAME = 'sites-manager-v15';
 const urlsToCache = [
   './',
   './index.html',
