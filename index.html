@@ -153,7 +153,7 @@
         }
 
         /* Scrollbar customizada */
-        .sites-grid::-webkit-scrollbar { width: 10px; }
+        .sites-grid::-webkit-scrollbar { width: 6px; }
         .sites-grid::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.5); border-radius: 10px; }
         .sites-grid::-webkit-scrollbar-thumb {
             background: linear-gradient(180deg, var(--neon-cyan), var(--neon-magenta));
@@ -227,11 +227,9 @@
         }
 
         .site-actions {
-    /* margin-left: 11px; */
     display: flex;
     gap: 8px;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
         .btn {
@@ -293,24 +291,24 @@
         }
 
         .add-site-btn {
-            position: fixed;
-            bottom: 1%;
-            right: 5%;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--neon-magenta), #ff0055);
-            border: 3px solid var(--neon-magenta);
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow:
-                0 0 30px rgba(255, 0, 255, 0.6),
+    position: fixed;
+    bottom: 1%;
+    right: 5%;
+    width: 60px;
+    height: 60px;
+    border-radius: 32%;
+    background: linear-gradient(
+153deg, var(--neon-magenta), #271f8e);
+    border: 3px solid #d106d1;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.6),
                 0 0 60px rgba(255, 0, 255, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            font-weight: bold;
-        }
+    transition: all 0.3s ease;
+    z-index: 1000;
+    font-weight: bold;
+}
 
         .add-site-btn:hover {
             transform: scale(1.15) rotate(90deg);
@@ -320,23 +318,22 @@
         }
 
         .search-random-btn {
-            position: fixed;
-            bottom: 0.9%;
-            right: 11%;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
-            border: 3px solid var(--neon-cyan);
-            color: var(--dark-bg);
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow:
-                0 0 30px rgba(0, 255, 255, 0.6),
+    position: fixed;
+    bottom: 5px;
+    right: 160px;
+    width: 61px;
+    height: 61px;
+    border-radius: 32%;
+    background: linear-gradient(346deg, #1f1796, #a90c41);
+    border: 3px solid #6c0ed366;
+    color: var(--dark-bg);
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.6),
                 0 0 60px rgba(0, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
 
         .search-random-btn:hover {
             transform: scale(1.15);
@@ -456,6 +453,7 @@
             box-shadow:
                 0 0 50px rgba(0, 255, 255, 0.4),
                 0 0 100px rgba(255, 0, 255, 0.2);
+                scrollbar-color: rgb(27 245 245 / 26%) transparent;
         }
 
         .modal-content h2 {
@@ -622,30 +620,28 @@
             .modal-content { padding: 20px; width: 95%; }
 
             .search-random-btn {
-                position: fixed;
-                bottom: 42%;
-                right: 87.9%;
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
-                background: linear-gradient(45deg, #1e90ff, #3742fa);
-                border: none;
-                color: white;
-                font-size: 20px;
-                cursor: pointer;
-                box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4);
-                transition: all 0.3s ease;
-                z-index: 1000;
-            }
+    position: fixed;
+    bottom: 15px;
+    left: 110px;
+    width: 60px;
+    height: 50px;
+    border-radius: 33%;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
 
             .add-site-btn {
-                bottom: 32%;
-                right: 87.8%;
-                width: 30px;
-                height: 30px;
-                font-size: 20px;
-                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-            }
+    bottom: 15px;
+    left: 40px;
+    width: 60px;
+    height: 49px;
+    font-size: 20px;
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+}
 
             .btnInExp {
                 width: 85%;
@@ -659,15 +655,15 @@
 
             #clearSearch {
                 position: absolute;
-                left: 3%;
-                top: 50%;
+                left: 3px;
+                top: 21px;
                 transform: translateY(-50%);
                 background: none;
                 border: none;
                 color: rgb(153, 153, 153);
                 cursor: pointer;
                 display: none;
-                font-size: 30px;
+                font-size: 32px;
                 font-weight: bold;
             }
 
@@ -690,13 +686,13 @@
                 font-size: 20px;
                 position: relative;
                 left: 0%;
-                padding: 7px 5px 7px 38px;
+                padding: 7px 5px 7px 41px;
                 width: 123%;
                 border-radius: 5px;
                 border: 1px solid #ddd;
             }
 
-            .fundo { position: relative; left: 15%; }
+            .fundo { position: relative; left: 154px; }
             .form-group textarea { font-size: 12px; height: 300px; font-family: 'Courier New', monospace; resize: vertical; }
             .grid-wrapper { display: flex; flex-direction: column; justify-content: center; min-height: 89vh; }
             .sites-grid {
@@ -742,14 +738,14 @@
             border: 1px solid rgba(0, 255, 255, 0.2); position: relative;
         }
         .code-search-bar input {
-            flex: 1; padding: 8px 30px 8px 12px; border-radius: 6px; font-size: 14px; outline: none;
+            flex: 1; padding: 8px 8px 8px 35px; border-radius: 6px; font-size: 14px; outline: none;
             background: rgba(15, 15, 35, 0.8); color: var(--neon-cyan); border: 1px solid rgba(0, 212, 255, 0.5);
         }
         .code-search-bar input:focus { border-color: var(--neon-magenta); box-shadow: 0 0 10px rgba(255, 0, 255, 0.3); }
         
         #clearCodeSearchBtn {
-            position: absolute; right: 95px; background: none; border: none; font-size: 20px;
-            font-weight: bold; color: #ff0055; cursor: pointer; padding: 0 5px; display: none;
+            position: absolute; left: 10px; background: none; border: none; font-size: 30px;
+            font-weight: bold; color: rgb(134 21 209); cursor: pointer; padding: 0 5px; display: none;
         }
         .code-search-bar span { font-size: 13px; color: var(--neon-cyan); min-width: 45px; text-align: center; font-weight: bold; }
         .code-search-bar button.nav-btn {
@@ -766,17 +762,17 @@
         
         #siteCodeBackdrop, #siteCode {
             width: 100% !important; height: 100% !important; padding: 12px; font-family: 'Courier New', monospace;
-            font-size: 12px; line-height: 20px; white-space: pre; overflow-wrap: normal; overflow-x: auto;
+            font-size: 14px; line-height: 20px; white-space: pre; overflow-wrap: normal; overflow-x: auto;
             position: absolute; top: 0; left: 0; border: none; outline: none; margin: 0; resize: none !important;
         }
         #siteCodeBackdrop { color: transparent; z-index: 1; pointer-events: none; }
-        #siteCode { background: transparent; color: var(--neon-cyan); z-index: 2; }
+        #siteCode { background: #ffffffcc; color: black; z-index: 2;}
         
         /* Cores do Marca-Texto */
         .mark-match { background-color: rgba(255, 0, 255, 0.4); color: transparent; border-radius: 3px; }
         .mark-active { background-color: rgba(0, 255, 255, 0.6); color: transparent; box-shadow: 0 0 0 2px var(--neon-cyan); }
         
-        @media (max-width: 768px) { .editor-wrapper { height: 350px; } #clearCodeSearchBtn { right: 100px; } }
+        @media (max-width: 768px) { .editor-wrapper { height: 350px; } #clearCodeSearchBtn { left: 11px; font-size: 32px; } }
     </style>
 </head>
 
@@ -803,9 +799,9 @@
             <button id="clearSearch">×</button>
         </div>
         <div class="fundo">
-            <button class="btn btn-secondary" onclick="openExportAllModal()" style="margin-left: 10px;">Exportar Sites</button>
+            <button class="btn btn-secondary" onclick="openExportAllModal()" style="margin-left: 10px;">Exportar</button>
             <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()"
-                style="margin-left: 10px;">Importar Sites</button>
+                style="margin-left: 10px;">Importar</button>
             <input type="file" id="importFile" accept=".json, .zip" style="display: none;" onchange="importSites(event)">
         </div>
         <button class="add-site-btn" onclick="openAddSiteModal()">+</button>
@@ -1496,7 +1492,49 @@
 
         // Verifica suporte ao reconhecimento de voz
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        // ==========================================
+        // BUSCA PRINCIPAL (DIGITAÇÃO E BOTÃO LIMPAR)
+        // ==========================================
+        let searchTimeout;
+        const mainSearchInput = document.getElementById('searchInput');
+        const mainClearBtn = document.getElementById('clearSearch');
 
+        if (mainSearchInput && mainClearBtn) {
+            // Escuta cada vez que você digita ou apaga uma letra
+            mainSearchInput.addEventListener('input', function (e) {
+                const searchTerm = e.target.value;
+
+                // Mostra ou esconde o botão "X"
+                if (searchTerm.trim() !== '') {
+                    mainClearBtn.style.display = 'block';
+                } else {
+                    mainClearBtn.style.display = 'none';
+                }
+
+                // Espera você parar de digitar por 300ms antes de buscar (evita travamentos)
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterSites(searchTerm);
+                }, 300);
+            });
+
+            // O que acontece quando clica no botão "X"
+            mainClearBtn.addEventListener('click', function () {
+                mainSearchInput.value = '';
+                mainClearBtn.style.display = 'none';
+                renderSites(); // Mostra todos os sites de novo
+                mainSearchInput.focus(); // Mantém o teclado aberto
+            });
+
+            // Bônus: Limpar a busca apertando a tecla "Esc" do teclado (se usar no PC)
+            mainSearchInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    mainSearchInput.value = '';
+                    mainClearBtn.style.display = 'none';
+                    renderSites();
+                }
+            });
+        }
         if (SpeechRecognition) {
             const recognition = new SpeechRecognition();
             recognition.lang = 'pt-BR'; 
