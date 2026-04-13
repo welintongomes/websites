@@ -733,6 +733,50 @@
             }
             .site-actions button { padding: 5px 10px; font-size: 0.8em; }
         }
+        /* =========================================
+           BARRA DE BUSCA E EDITOR HOLOGRÁFICO NEON
+           ========================================= */
+        .code-search-bar {
+            display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
+            background: rgba(0, 255, 255, 0.05); padding: 8px; border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.2); position: relative;
+        }
+        .code-search-bar input {
+            flex: 1; padding: 8px 30px 8px 12px; border-radius: 6px; font-size: 14px; outline: none;
+            background: rgba(15, 15, 35, 0.8); color: var(--neon-cyan); border: 1px solid rgba(0, 212, 255, 0.5);
+        }
+        .code-search-bar input:focus { border-color: var(--neon-magenta); box-shadow: 0 0 10px rgba(255, 0, 255, 0.3); }
+        
+        #clearCodeSearchBtn {
+            position: absolute; right: 95px; background: none; border: none; font-size: 20px;
+            font-weight: bold; color: #ff0055; cursor: pointer; padding: 0 5px; display: none;
+        }
+        .code-search-bar span { font-size: 13px; color: var(--neon-cyan); min-width: 45px; text-align: center; font-weight: bold; }
+        .code-search-bar button.nav-btn {
+            background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan);
+            border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s;
+        }
+        .code-search-bar button.nav-btn:hover { background: var(--neon-cyan); color: var(--dark-bg); box-shadow: 0 0 10px var(--neon-cyan); }
+
+        .editor-wrapper {
+            position: relative; width: 100%; height: 250px; border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px; background: rgba(0, 0, 0, 0.6); overflow: hidden; transition: all 0.3s;
+        }
+        .editor-wrapper:focus-within { border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(0, 255, 255, 0.2); }
+        
+        #siteCodeBackdrop, #siteCode {
+            width: 100% !important; height: 100% !important; padding: 12px; font-family: 'Courier New', monospace;
+            font-size: 12px; line-height: 20px; white-space: pre; overflow-wrap: normal; overflow-x: auto;
+            position: absolute; top: 0; left: 0; border: none; outline: none; margin: 0; resize: none !important;
+        }
+        #siteCodeBackdrop { color: transparent; z-index: 1; pointer-events: none; }
+        #siteCode { background: transparent; color: var(--neon-cyan); z-index: 2; }
+        
+        /* Cores do Marca-Texto */
+        .mark-match { background-color: rgba(255, 0, 255, 0.4); color: transparent; border-radius: 3px; }
+        .mark-active { background-color: rgba(0, 255, 255, 0.6); color: transparent; box-shadow: 0 0 0 2px var(--neon-cyan); }
+        
+        @media (max-width: 768px) { .editor-wrapper { height: 350px; } #clearCodeSearchBtn { right: 100px; } }
     </style>
 </head>
 
@@ -781,9 +825,18 @@
                         <input type="text" id="siteDescription">
                     </div>
                     <div class="form-group">
-                        <label for="siteCode">Código HTML:</label>
-                        <textarea id="siteCode" placeholder="Cole aqui o código HTML completo da sua ferramenta..."
-                            required></textarea>
+                        <label>Código HTML:</label>
+                        <div class="code-search-bar">
+                            <input type="text" id="codeSearchInput" placeholder="Encontrar no código..." oninput="performCodeSearch()">
+                            <button type="button" id="clearCodeSearchBtn" onclick="resetCodeSearch()" title="Limpar Busca">×</button>
+                            <span id="codeSearchCount">0/0</span>
+                            <button type="button" class="nav-btn" onclick="prevCodeMatch()" title="Anterior">↑</button>
+                            <button type="button" class="nav-btn" onclick="nextCodeMatch()" title="Próximo">↓</button>
+                        </div>
+                        <div class="editor-wrapper">
+                            <div id="siteCodeBackdrop"></div>
+                            <textarea id="siteCode" placeholder="Cole aqui o código HTML completo da sua ferramenta..." required spellcheck="false"></textarea>
+                        </div>
                     </div>
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeSiteModal()">Cancelar</button>
@@ -863,6 +916,117 @@
         let editingIndex = -1;
         let lastOpenedSiteIndex = -1;
         let siteToExportIndex = -1; // Variável nova para o modal individual
+
+        // ==========================================
+        // LÓGICA DO EDITOR HOLOGRÁFICO E BUSCA
+        // ==========================================
+        let codeMatchPositions = [];
+        let currentCodeMatchIndex = -1;
+        const textarea = document.getElementById('siteCode');
+        const backdrop = document.getElementById('siteCodeBackdrop');
+
+        textarea.addEventListener('scroll', () => {
+            backdrop.scrollTop = textarea.scrollTop;
+            backdrop.scrollLeft = textarea.scrollLeft;
+        });
+
+        textarea.addEventListener('input', () => {
+            if (codeMatchPositions.length > 0) resetCodeSearch();
+        });
+
+        function resetCodeSearch() {
+            document.getElementById('codeSearchInput').value = '';
+            document.getElementById('codeSearchCount').textContent = '0/0';
+            document.getElementById('clearCodeSearchBtn').style.display = 'none';
+            codeMatchPositions = [];
+            currentCodeMatchIndex = -1;
+            backdrop.innerHTML = ''; 
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function performCodeSearch() {
+            codeMatchPositions = [];
+            currentCodeMatchIndex = -1;
+            const query = document.getElementById('codeSearchInput').value.toLowerCase();
+            const text = textarea.value;
+            const lowerText = text.toLowerCase();
+
+            if (!query) { resetCodeSearch(); return; }
+
+            document.getElementById('clearCodeSearchBtn').style.display = 'block';
+
+            let startIndex = 0, index;
+            while ((index = lowerText.indexOf(query, startIndex)) > -1) {
+                codeMatchPositions.push({ start: index, end: index + query.length });
+                startIndex = index + query.length;
+            }
+
+            if (codeMatchPositions.length > 0) {
+                let backdropHtml = ''; let lastPos = 0;
+                codeMatchPositions.forEach((pos, i) => {
+                    backdropHtml += escapeHtml(text.substring(lastPos, pos.start));
+                    backdropHtml += `<mark class="mark-match" id="match-${i}">${escapeHtml(text.substring(pos.start, pos.end))}</mark>`;
+                    lastPos = pos.end;
+                });
+                backdropHtml += escapeHtml(text.substring(lastPos));
+                if (text.endsWith('\n')) backdropHtml += '\n ';
+
+                backdrop.innerHTML = backdropHtml;
+                currentCodeMatchIndex = 0;
+                highlightCurrentCodeMatch(); 
+            } else {
+                backdrop.innerHTML = escapeHtml(text);
+                document.getElementById('codeSearchCount').textContent = '0/0';
+            }
+        }
+
+        function highlightCurrentCodeMatch() {
+            if (codeMatchPositions.length === 0) return;
+            document.getElementById('codeSearchCount').textContent = `${currentCodeMatchIndex + 1}/${codeMatchPositions.length}`;
+            
+            document.querySelectorAll('.mark-match').forEach(el => el.classList.remove('mark-active'));
+            const currentMark = document.getElementById(`match-${currentCodeMatchIndex}`);
+            
+            if (currentMark) {
+                currentMark.classList.add('mark-active');
+                backdrop.scrollTop = currentMark.offsetTop - (backdrop.clientHeight / 2) + (currentMark.clientHeight / 2);
+                backdrop.scrollLeft = currentMark.offsetLeft - (backdrop.clientWidth / 2);
+                textarea.scrollTop = backdrop.scrollTop;
+                textarea.scrollLeft = backdrop.scrollLeft;
+            }
+        }
+
+        function nextCodeMatch() {
+            if (codeMatchPositions.length === 0) return;
+            currentCodeMatchIndex = (currentCodeMatchIndex + 1) % codeMatchPositions.length;
+            highlightCurrentCodeMatch(); 
+        }
+
+        function prevCodeMatch() {
+            if (codeMatchPositions.length === 0) return;
+            currentCodeMatchIndex = (currentCodeMatchIndex - 1 + codeMatchPositions.length) % codeMatchPositions.length;
+            highlightCurrentCodeMatch();
+        }
+
+        // Suporte à tecla TAB no editor de código
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                if(backdrop.innerHTML !== '') { backdrop.innerHTML = escapeHtml(this.value); resetCodeSearch(); }
+            }
+        });
 
         // Carregar sites do armazenamento ou criar site exemplo
         async function loadSites() {
@@ -1064,13 +1228,14 @@
             renderSites();
         }
 
-        // Abrir modal para adicionar site
+// Abrir modal para adicionar site
         function openAddSiteModal() {
             editingIndex = -1;
             document.getElementById('modalTitle').textContent = 'Adicionar Nova Ferramenta';
             document.getElementById('siteName').value = '';
             document.getElementById('siteDescription').value = '';
             document.getElementById('siteCode').value = '';
+            resetCodeSearch(); // <- Limpa a busca anterior
             document.getElementById('siteModal').style.display = 'block';
         }
 
@@ -1087,6 +1252,7 @@
             document.getElementById('siteName').value = site.name;
             document.getElementById('siteDescription').value = site.description || '';
             document.getElementById('siteCode').value = site.code;
+            resetCodeSearch(); // <- Limpa a busca anterior
             document.getElementById('siteModal').style.display = 'block';
         }
         
