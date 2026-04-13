@@ -1,9 +1,7 @@
-const CACHE_NAME = 'sites-manager-v15';
+const CACHE_NAME = 'sites-manager-v18';
 const urlsToCache = [
   './',
-  './index.html',
-  './manifest.json',
-  './jszip.min.js'
+  './index.html'
 ];
 
 // Instalar o Service Worker
@@ -11,51 +9,52 @@ self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
-        console.log('Cache aberto v13');
+        console.log('Cache aberto');
         return cache.addAll(urlsToCache);
       })
       .catch(function(error) {
         console.log('Erro ao adicionar ao cache:', error);
       })
   );
-  self.skipWaiting(); // Força a atualização imediata
 });
 
-// Interceptar requisições (AGORA SALVA LINKS EXTERNOS TAMBÉM)
+// Interceptar requisições
 self.addEventListener('fetch', function(event) {
-  // Ignora requisições que não sejam GET (ex: extensões de navegador)
-  if (event.request.method !== 'GET' || event.request.url.startsWith('chrome-extension')) {
+  // Ignorar requisições que não são do mesmo domínio ou são para manifest
+  if (!event.request.url.startsWith(self.location.origin) || 
+      event.request.url.includes('manifest.json')) {
     return;
   }
 
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
-        // Se já temos a fonte ou arquivo no cache (do mato), usa ele!
+        // Retorna do cache se disponível
         if (response) {
+          console.log('Servindo do cache:', event.request.url);
           return response;
         }
         
-        // Se tem internet, busca na rede
+        // Buscar da rede
         return fetch(event.request)
-          .then(function(networkResponse) {
-            // Aceita respostas normais (200) e respostas "Opaque" (0) que são típicas de fontes externas/CDNs
-            if (!networkResponse || (networkResponse.status !== 200 && networkResponse.type !== 'opaque')) {
-              return networkResponse;
+          .then(function(response) {
+            // Verificar se é uma resposta válida
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
             }
 
-            // Clona a fonte/arquivo e salva no cache para uso offline futuro
-            var responseToCache = networkResponse.clone();
+            // Clonar a resposta
+            var responseToCache = response.clone();
 
             caches.open(CACHE_NAME)
               .then(function(cache) {
                 cache.put(event.request, responseToCache);
               });
 
-            return networkResponse;
+            return response;
           })
           .catch(function() {
-            // Se falhar e for a página principal, carrega o index
+            // Se falhar, tentar servir a página principal
             if (event.request.destination === 'document') {
               return caches.match('./index.html');
             }
@@ -64,7 +63,7 @@ self.addEventListener('fetch', function(event) {
   );
 });
 
-// Ativar o Service Worker e limpar o lixo velho
+// Ativar o Service Worker
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
@@ -77,5 +76,10 @@ self.addEventListener('activate', function(event) {
       );
     })
   );
-  self.clients.claim();
+
 });
+
+
+
+
+

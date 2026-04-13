@@ -3,422 +3,851 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciador de Ferramentas</title>
     <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='8' fill='%230071e3'/%3E%3Cpath d='M16 16h16v4H16zM16 24h16v4H16zM16 32h12v4H16z' fill='white'/%3E%3C/svg%3E">
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='8' fill='%234CAF50'/%3E%3Cpath d='M16 16h16v4H16zM16 24h16v4H16zM16 32h12v4H16z' fill='white'/%3E%3C/svg%3E">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#f5f5f7">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Sites Manager">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
+    <script src="jszip.min.js"></script>
 
     <style>
-        /* Design Clean Apple-like */
-        :root {
-            --bg-color: #f5f5f7;
-            --text-color: #1d1d1f;
-            --card-bg: #ffffff;
-            --primary-color: #0071e3;
-            --primary-hover: #0077ed;
-            --secondary-bg: #e8e8ed;
-            --secondary-hover: #d2d2d7;
-            --danger-color: #ff3b30;
-            --danger-bg: rgba(255, 59, 48, 0.1);
-            --border-color: #d2d2d7;
-            --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.08);
-            --shadow-hover: 0 10px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
-            --radius: 18px;
-            --btn-radius: 12px;
-            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-magenta: #ff00ff;
+            --neon-yellow: #ffff00;
+            --neon-blue: #00d4ff;
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(15, 15, 35, 0.9);
         }
 
         body {
-            font-family: var(--font-family);
-            background: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--dark-bg);
             min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
+            color: var(--neon-cyan);
+            position: relative;
             overflow-x: hidden;
-            padding-top: 90px;
-            padding-bottom: 160px; 
+        }
+
+        /* Fundo animado cyberpunk - APENAS DESKTOP */
+        @media (min-width: 769px) {
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background:
+                    linear-gradient(45deg, transparent 30%, rgba(255, 0, 255, 0.03) 30%, rgba(255, 0, 255, 0.03) 70%, transparent 70%),
+                    linear-gradient(-45deg, transparent 30%, rgba(0, 255, 255, 0.03) 30%, rgba(0, 255, 255, 0.03) 70%, transparent 70%);
+                background-size: 50px 50px;
+                animation: gridMove 20s linear infinite;
+                z-index: 0;
+                pointer-events: none;
+            }
+
+            @keyframes gridMove {
+                0% { background-position: 0 0, 0 0; }
+                100% { background-position: 50px 50px, -50px 50px; }
+            }
+
+            /* Linhas de scan - APENAS DESKTOP */
+            body::after {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(to bottom,
+                        transparent 50%,
+                        rgba(0, 255, 255, 0.02) 50%);
+                background-size: 100% 4px;
+                animation: scanlines 10s linear infinite;
+                z-index: 1;
+                pointer-events: none;
+            }
+
+            @keyframes scanlines {
+                0% { background-position: 0 0; }
+                100% { background-position: 0 100%; }
+            }
+        }
+
+        /* Background simples para mobile - SEM ANIMAÇÕES */
+        @media (max-width: 768px) {
+            body {
+                background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
         }
 
         .header {
-            position: fixed;
-            top: 0; left: 0; width: 100%;
-            background: rgba(245, 245, 247, 0.9);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            z-index: 1000; padding: 15px 20px; text-align: center;
-            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+            margin-bottom: 10px;
+            color: white;
         }
 
-        .header h1 { font-size: 2em; font-weight: 700; letter-spacing: -0.5px; color: var(--text-color); }
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            margin-bottom: 0px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow:
+                0 0 10px rgba(0, 255, 255, 0.5),
+                0 0 20px rgba(255, 0, 255, 0.3),
+                0 0 30px rgba(0, 255, 255, 0.2);
+            animation: glitchText 3s infinite;
+            letter-spacing: 3px;
+        }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        @keyframes glitchText {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 2px); }
+            94% { transform: translate(2px, -2px); }
+            96% { transform: translate(-2px, -2px); }
+        }
 
-        .sites-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        .sites-grid {
+            padding: 5.3px 3px 10px 5px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            min-height: 200px;
+            max-height: 71.7vh;
+            overflow-y: auto;
+        }
+
+        /* Scrollbar customizada */
+        .sites-grid::-webkit-scrollbar { width: 10px; }
+        .sites-grid::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.5); border-radius: 10px; }
+        .sites-grid::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-magenta));
+            border-radius: 10px;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
 
         .site-card {
-            background: var(--card-bg); border-radius: var(--radius); padding: 24px;
-            border: 1px solid var(--border-color); box-shadow: var(--shadow-soft);
-            transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column;
+            margin-top: 5px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 9px;
+            border: 2px solid transparent;
+            background-image:
+                linear-gradient(var(--card-bg), var(--card-bg)),
+                linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 0 20px rgba(0, 255, 255, 0.1),
+                inset 0 0 20px rgba(0, 255, 255, 0.05);
         }
-        .site-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
-        .site-card h3 { font-size: 1.4em; font-weight: 600; margin-bottom: 8px; color: var(--text-color); word-break: break-word; }
-        .site-card p { color: #555; font-size: 1em; line-height: 1.5; margin-bottom: 20px; flex-grow: 1; }
-        .site-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-        /* TOOLBAR */
-        .toolbar {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            z-index: 2000; padding: 15px 20px; padding-bottom: max(15px, env(safe-area-inset-bottom));
-            display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center;
-            border-top: 1px solid var(--border-color); box-shadow: 0 -4px 15px rgba(0,0,0,0.05); pointer-events: auto;
+        /* Efeito de scan no hover */
+        .site-card::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                    transparent,
+                    rgba(0, 255, 255, 0.2),
+                    transparent);
+            transition: top 0.6s;
         }
-        .search-container { position: relative; flex: 1 1 100%; }
-        #searchInput {
-            width: 100%; padding: 12px 40px 12px 15px; border-radius: var(--btn-radius);
-            border: 1px solid var(--border-color); background: var(--secondary-bg); color: var(--text-color);
-            font-size: 16px; font-family: var(--font-family); outline: none; transition: all 0.2s ease;
+
+        .site-card:hover::before { top: 100%; }
+
+        .site-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--neon-cyan);
+            box-shadow:
+                0 0 40px rgba(0, 255, 255, 0.4),
+                0 0 60px rgba(255, 0, 255, 0.2),
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
         }
-        #searchInput:focus { background: var(--card-bg); border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2); }
-        #clearSearch {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: #86868b; cursor: pointer; display: none; font-size: 24px; font-weight: bold; padding: 5px;
+
+        .site-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            letter-spacing: 2px;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
+
+        .site-card p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .site-actions {
+    /* margin-left: 11px; */
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
 
         .btn {
-            padding: 10px 18px; border-radius: var(--btn-radius); border: none; cursor: pointer;
-            font-size: 14px; font-weight: 600; font-family: var(--font-family); transition: all 0.2s ease;
-            display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
-        }
-        .btn-primary { background: var(--primary-color); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-secondary { background: var(--secondary-bg); color: var(--text-color); }
-        .btn-secondary:hover { background: var(--secondary-hover); }
-        .btn-danger { background: var(--danger-bg); color: var(--danger-color); }
-        .btn-danger:hover { background: var(--danger-color); color: white; }
-
-        .floating-actions { position: fixed; bottom: 160px; left: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 1500; }
-        .fab-btn {
-            width: 56px; height: 56px; border-radius: 50%; border: none; color: white; font-size: 24px;
-            cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); transition: all 0.2s ease;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .fab-btn:hover { transform: scale(1.08); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); }
-        .fab-add { background: var(--primary-color); }
-        .fab-voice { background: #34c759; transition: all 0.3s ease; }
-
-        @keyframes pulse-record {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(255, 59, 48, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
-        }
-        .fab-voice.listening { background: var(--danger-color); animation: pulse-record 1.5s infinite; }
-
-        /* MODAIS */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 4000;
-        }
-        .modal-content {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: var(--card-bg); padding: 30px; border-radius: 20px;
-            width: 90%; max-width: 800px; max-height: 95vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-        .modal-content h2 { font-weight: 600; margin-bottom: 20px; color: var(--text-color); }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px; }
-        .form-group input {
-            width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--btn-radius);
-            font-size: 15px; font-family: var(--font-family); background: #fafafa; outline: none; transition: all 0.2s;
-        }
-        .form-group input:focus { border-color: var(--primary-color); background: #fff; box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1); }
-        
-        /* BARRA DE BUSCA INTERNA DO EDITOR DE CÓDIGO (COM O X) */
-        .code-search-bar {
-            display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
-            background: var(--secondary-bg); padding: 8px; border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+            padding: 8px 16px;
+            border: 2px solid;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: transparent;
             position: relative;
+            overflow: hidden;
         }
-        .code-search-bar input {
-            flex: 1; padding: 8px 30px 8px 12px; 
-            border: 1px solid var(--border-color); border-radius: 6px;
-            font-size: 14px; outline: none;
-        }
-        #clearCodeSearchBtn {
+
+        .btn::before {
+            content: '';
             position: absolute;
-            left: calc(100% - 150px);
-            background: none; border: none; font-size: 18px; font-weight: bold;
-            color: #86868b; cursor: pointer; padding: 5px; display: none;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
         }
-        .code-search-bar span { font-size: 13px; color: #555; min-width: 40px; text-align: center; font-weight: 600; }
-        .code-search-bar button.nav-btn {
-            background: #fff; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 12px;
-            cursor: pointer; font-size: 16px; font-weight: bold; color: var(--text-color); display: flex; align-items: center; justify-content: center;
+
+        .btn:hover::before { width: 300px; height: 300px; }
+
+        .btn-primary {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
         }
-        .code-search-bar button.nav-btn:active { background: #e8e8ed; }
 
-        .cm-search-match { background: #ffeb3b; color: black; }
-
-        /* EDITOR CODEMIRROR */
-        .CodeMirror {
-            border: 1px solid var(--border-color); border-radius: var(--btn-radius);
-            height: 400px; max-height: 50vh; font-family: "SF Mono", "Courier New", monospace;
-            font-size: 14px; background: #fafafa;
+        .btn-primary:hover {
+            background: var(--neon-cyan);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
         }
-        .CodeMirror-focused { border-color: var(--primary-color); background: #fff; box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1); }
-        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-        /* TELA CHEIA (IFRAME) */
-        .fullscreen-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 5000; }
-        .site-frame { position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 60px - env(safe-area-inset-bottom, 0px)); border: none; background: white; z-index: 1; }
+        .btn-secondary {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: var(--neon-blue);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0, 212, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .add-site-btn {
+            position: fixed;
+            bottom: 1%;
+            right: 5%;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-magenta), #ff0055);
+            border: 3px solid var(--neon-magenta);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow:
+                0 0 30px rgba(255, 0, 255, 0.6),
+                0 0 60px rgba(255, 0, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-weight: bold;
+        }
+
+        .add-site-btn:hover {
+            transform: scale(1.15) rotate(90deg);
+            box-shadow:
+                0 0 50px var(--neon-magenta),
+                0 0 100px rgba(255, 0, 255, 0.5);
+        }
+
+        .search-random-btn {
+            position: fixed;
+            bottom: 0.9%;
+            right: 11%;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+            border: 3px solid var(--neon-cyan);
+            color: var(--dark-bg);
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow:
+                0 0 30px rgba(0, 255, 255, 0.6),
+                0 0 60px rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .search-random-btn:hover {
+            transform: scale(1.15);
+            box-shadow:
+                0 0 50px var(--neon-cyan),
+                0 0 100px rgba(0, 255, 255, 0.5);
+        }
+
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9999;
+        }
+
+        .fullscreen-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
         .fullscreen-header {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 60px;
-            background: rgba(245, 245, 247, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); 
-            padding: 0 20px; padding-bottom: env(safe-area-inset-bottom);
-            display: flex; justify-content: space-between; align-items: center; 
-            border-top: 1px solid var(--border-color); box-shadow: 0 -4px 10px rgba(0,0,0,0.05); z-index: 10;
+            background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(30, 0, 50, 0.95));
+            color: var(--neon-cyan);
+            padding: 3px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: normal;
+            border-bottom: 2px solid var(--neon-cyan);
+            box-shadow: 0 5px 30px rgba(0, 255, 255, 0.3);
         }
+
         .fullscreen-header h2 {
-            font-size: 16px; font-weight: 600; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 15px; flex: 1; text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
-        #offlineIndicator { border-radius: 20px; font-size: 12px; padding: 4px 12px; background: #ff9f0a; color: white; font-weight: 600; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
-        @media (max-width: 768px) { 
-            .toolbar .btn { flex: 1; justify-content: center; } 
-            #clearCodeSearchBtn { left: calc(100% - 135px); } 
+
+        .close-btn {
+            background: transparent;
+            border: 2px solid #ff0055;
+            color: #ff0055;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #ff0055;
+            color: white;
+            box-shadow: 0 0 20px #ff0055;
+        }
+
+        .edit-btn {
+            background: transparent;
+            border: 2px solid var(--neon-magenta);
+            color: var(--neon-magenta);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background: var(--neon-magenta);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-magenta);
+        }
+
+        .site-frame {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid var(--neon-cyan);
+            box-shadow:
+                0 0 50px rgba(0, 255, 255, 0.4),
+                0 0 100px rgba(255, 0, 255, 0.2);
+        }
+
+        .modal-content h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            white-space: pre;
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .form-group textarea {
+            font-size: 12px;
+            height: 156px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        #clearSearch {
+            position: absolute;
+            left: 14.6%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--neon-cyan);
+            cursor: pointer;
+            display: none;
+            font-size: 32px;
+            font-weight: bold;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        #clearSearch:hover {
+            background: rgba(0, 255, 255, 0.2);
+            color: var(--neon-magenta);
+            transform: translateY(-50%) rotate(90deg);
+        }
+
+        .search-container {
+            width: 90%;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        #searchInput {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 20px;
+            position: relative;
+            left: 14%;
+            padding: 7px 5px 7px 38px;
+            width: 100%;
+            border-radius: 25px;
+            background: rgba(15, 15, 35, 0.8);
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 0 20px rgba(0, 255, 255, 0.2),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+
+        #searchInput::placeholder { color: rgba(0, 255, 255, 0.5); }
+        #searchInput:focus {
+            border-color: var(--neon-magenta);
+            box-shadow:
+                0 0 30px rgba(255, 0, 255, 0.4),
+                inset 0 0 30px rgba(255, 0, 255, 0.1);
+        }
+
+        .btnInExp {
+            width: 85%;
+            position: fixed;
+            bottom: 18px;
+            left: 12px;
+            display: flex;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .fundo {
+            position: relative;
+            left: 15%;
+        }
+
+        .btn-danger {
+            background: transparent;
+            border-color: #ff0055;
+            color: #ff0055;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: #ff0055;
+            color: white;
+            box-shadow: 0 0 20px #ff0055, 0 0 40px rgba(255, 0, 85, 0.5);
+            transform: translateY(-2px);
+        }
+
+        #offlineIndicator {
+            border-radius: 50px;
+            font-size: 12px;
+            height: 21px;
+            width: 30%;
+            background: linear-gradient(90deg, #ff0055, var(--neon-magenta));
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 1000;
+                padding: 10px 20px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            .header h1 { font-size: 1.5em; }
+            .modal-content { padding: 20px; width: 95%; }
+
+            .search-random-btn {
+                position: fixed;
+                bottom: 42%;
+                right: 87.9%;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: linear-gradient(45deg, #1e90ff, #3742fa);
+                border: none;
+                color: white;
+                font-size: 20px;
+                cursor: pointer;
+                box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4);
+                transition: all 0.3s ease;
+                z-index: 1000;
+            }
+
+            .add-site-btn {
+                bottom: 32%;
+                right: 87.8%;
+                width: 30px;
+                height: 30px;
+                font-size: 20px;
+                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+            }
+
+            .btnInExp {
+                width: 85%;
+                position: fixed;
+                bottom: 18px;
+                left: 12px;
+                display: flex;
+                z-index: 1000;
+                flex-direction: column;
+            }
+
+            #clearSearch {
+                position: absolute;
+                left: 3%;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: rgb(153, 153, 153);
+                cursor: pointer;
+                display: none;
+                font-size: 30px;
+                font-weight: bold;
+            }
+
+            .site-card {
+                margin-top: 5px;
+                background-image: linear-gradient(var(--card-bg), var(--card-bg)),
+                    linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+                border-radius: 15px;
+                padding: 7px 3px 7px 38px;
+                box-shadow: 0 13px 10px rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            #searchInput {
+                font-size: 20px;
+                position: relative;
+                left: 0%;
+                padding: 7px 5px 7px 38px;
+                width: 123%;
+                border-radius: 5px;
+                border: 1px solid #ddd;
+            }
+
+            .fundo { position: relative; left: 15%; }
+            .form-group textarea { font-size: 12px; height: 300px; font-family: 'Courier New', monospace; resize: vertical; }
+            .grid-wrapper { display: flex; flex-direction: column; justify-content: center; min-height: 89vh; }
+            .sites-grid {
+                padding-bottom: 15px;
+                border-radius: 10px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 25px;
+                min-height: 200px;
+                max-height: 73vh;
+                overflow-y: auto;
+            }
+
+            .fullscreen-header {
+                gap: 13px;
+                background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(30, 0, 50, 0.95));
+                color: var(--neon-cyan);
+                padding: 3px 20px;
+                display: flex;
+                flex-wrap: nowrap;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 2px solid var(--neon-cyan);
+                box-shadow: 0 5px 30px rgba(0, 255, 255, 0.3);
+                overflow: hidden;
+            }
+
+            .fullscreen-header h2 { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .fullscreen-header .actions, .fullscreen-header button { flex-shrink: 0; white-space: nowrap; }
+
+            .edit-btn, .close-btn {
+                padding: 3px 15px;
+                font-size: 0.9em;
+            }
+            .site-actions button { padding: 5px 10px; font-size: 0.8em; }
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <h1>Ferramentas</h1>
-        <div id="offlineIndicator" style="display: none;">📱 Offline</div>
-    </div>
-
     <div class="container">
-        <div class="sites-grid" id="sitesGrid"></div>
+        <div class="header">
+            <h1>🛠️Ferramentas</h1>
+            <div id="offlineIndicator"
+                style="display: none; position: fixed; top: 0; left: 0; right: 0; background: #f39c12; color: white; text-align: center; padding: 5px; z-index: 9999;">
+                📱 Modo Offline
+            </div>
+            <p></p>
+        </div>
+        <div class="grid-wrapper">
+            <div class="sites-grid" id="sitesGrid">
+                </div>
+        </div>
+
     </div>
 
-    <div class="toolbar">
+    <div class="btnInExp">
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Pesquisar ferramentas...">
+            <input type="text" id="searchInput" placeholder="Pesquisar sites...">
             <button id="clearSearch">×</button>
         </div>
-        <button class="btn btn-secondary" onclick="openExportModal()">💾 Salvar Tudo</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('importFileMaster').click()">📂 Importar</button>
-        <input type="file" id="importFileMaster" accept=".json, .zip" style="display: none;" onchange="handleUniversalImport(event)">
-    </div>
-
-    <div class="floating-actions">
-        <button class="fab-btn fab-voice" id="btnVoice" onclick="startVoiceSearch()" title="Pesquisa por voz">🎤</button>
-        <button class="fab-btn fab-add" onclick="openAddSiteModal()" title="Adicionar Site">＋</button>
-    </div>
-
-    <div class="modal" id="exportModal">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <h2>Como deseja salvar tudo?</h2>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="btn btn-primary" onclick="exportSitesZip()">📦 Salvar como ZIP (Recomendado)</button>
-                <button class="btn btn-secondary" onclick="exportSitesJSON()">📄 Salvar como JSON</button>
-                <button class="btn btn-danger" onclick="closeExportModal()">Cancelar</button>
-            </div>
+        <div class="fundo">
+            <button class="btn btn-secondary" onclick="openExportAllModal()" style="margin-left: 10px;">Exportar Sites</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()"
+                style="margin-left: 10px;">Importar Sites</button>
+            <input type="file" id="importFile" accept=".json, .zip" style="display: none;" onchange="importSites(event)">
         </div>
-    </div>
+        <button class="add-site-btn" onclick="openAddSiteModal()">+</button>
+        <button class="search-random-btn" onclick="startVoiceSearch()">🎤</button>
 
-    <div class="modal" id="exportSingleModal">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <h2>Salvar Ferramenta</h2>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="btn btn-primary" onclick="executeExportSingle('html')">🌐 Baixar página (HTML)</button>
-                <button class="btn btn-secondary" onclick="executeExportSingle('zip')">🗜️ Baixar compactado (ZIP)</button>
-                <button class="btn btn-secondary" onclick="executeExportSingle('json')">📦 Baixar dados (JSON)</button>
-                <button class="btn btn-danger" onclick="closeExportSingleModal()">Cancelar</button>
-            </div>
-        </div>
-    </div>
 
-    <div class="modal" id="siteModal">
-        <div class="modal-content">
-            <h2 id="modalTitle">Nova Ferramenta</h2>
-            <form id="siteForm">
-                <div class="form-group">
-                    <label for="siteName">Nome</label>
-                    <input type="text" id="siteName" required>
-                </div>
-                <div class="form-group">
-                    <label for="siteDescription">Descrição</label>
-                    <input type="text" id="siteDescription">
-                </div>
-                
-                <div class="form-group">
-                    <label>Código HTML Original</label>
-                    
-                    <div class="code-search-bar">
-                        <input type="text" id="codeSearchInput" placeholder="Encontrar no código..." oninput="performCodeSearch()">
-                        <button type="button" id="clearCodeSearchBtn" onclick="resetCodeSearch()" title="Limpar Busca">×</button>
-                        <span id="codeSearchCount">0/0</span>
-                        <button type="button" class="nav-btn" onclick="prevCodeMatch()" title="Anterior">↑</button>
-                        <button type="button" class="nav-btn" onclick="nextCodeMatch()" title="Próximo">↓</button>
+        <div class="modal" id="siteModal">
+            <div class="modal-content">
+                <h2 id="modalTitle">Adicionar Nova Ferramenta</h2>
+                <form id="siteForm">
+                    <div class="form-group">
+                        <label for="siteName">Nome da Ferramenta:</label>
+                        <input type="text" id="siteName" required>
                     </div>
-
-                    <textarea id="siteCode" placeholder="Cole aqui o código..."></textarea>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeSiteModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label for="siteDescription">Descrição:</label>
+                        <input type="text" id="siteDescription">
+                    </div>
+                    <div class="form-group">
+                        <label for="siteCode">Código HTML:</label>
+                        <textarea id="siteCode" placeholder="Cole aqui o código HTML completo da sua ferramenta..."
+                            required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeSiteModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <div class="fullscreen-overlay" id="fullscreenOverlay">
-        <div class="fullscreen-header">
-            <button class="btn btn-danger" onclick="closeFullscreen()">Fechar</button>
-            <h2 id="fullscreenTitle">Ferramenta</h2>
-            <button class="btn btn-secondary" onclick="editCurrentSite()">Editar</button>
+        <div class="modal" id="exportAllModal">
+            <div class="modal-content" style="max-width: 400px; text-align: center;">
+                <h2 style="margin-bottom: 20px;">Exportar Todos os Sites</h2>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <button class="btn btn-primary" onclick="exportAllZip()">📦 Exportar como ZIP (Páginas HTML + JSON)</button>
+                    <button class="btn btn-secondary" onclick="exportAllJSON()">📄 Exportar como JSON (Apenas Dados)</button>
+                    <button class="btn btn-danger" onclick="closeExportAllModal()">Cancelar</button>
+                </div>
+            </div>
         </div>
-    </div>
 
+        <div class="modal" id="exportSingleModal">
+            <div class="modal-content" style="max-width: 400px; text-align: center;">
+                <h2 style="margin-bottom: 20px;">Salvar Ferramenta</h2>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <button class="btn btn-primary" onclick="executeExportSingle('html')">🌐 Salvar Página Física (.html)</button>
+                    <button class="btn btn-secondary" onclick="executeExportSingle('zip')">🗜️ Salvar Pacote ZIP (Página + Dados)</button>
+                    <button class="btn btn-danger" onclick="closeExportSingleModal()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="fullscreen-overlay" id="fullscreenOverlay">
+            <div class="fullscreen-content">
+                <iframe class="site-frame" id="siteFrame" srcdoc=""
+                    style="width:100%; height:100%; border:none; background:#fff;">
+                </iframe>
+                <div class="fullscreen-header bottom-header">
+                    <div class="left-buttons">
+                        <button class="close-btn" onclick="closeFullscreen()">Fechar</button>
+                        <button class="edit-btn" onclick="editCurrentSite()">Editar</button>
+                    </div>
+                    <h2 id="fullscreenTitle" class="title-right">Ferramenta</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
     <script>
-        // ==========================================
-        // VARIÁVEIS GLOBAIS
-        // ==========================================
-        const DB_NAME = 'MeusSitesDB';
+        // Configuração do IndexedDB
+        const DB_NAME = 'SitesManagerDB';
         const DB_VERSION = 1;
         const STORE_NAME = 'sites';
 
         let currentPage = 0;
-        const ITEMS_PER_PAGE = 12;
-        let sites = [];
-        let currentSiteIndex = -1;
-        let editingIndex = -1;
-        let lastOpenedSiteIndex = -1;
-        let siteToExportIndex = -1;
-        
-        let codeEditor; 
+        const ITEMS_PER_PAGE = 4;
 
-        let codeSearchMarks = [];
-        let codeMatchPositions = [];
-        let currentCodeMatchIndex = -1;
-
-        // ==========================================
-        // INICIALIZAÇÃO DO EDITOR CODEMIRROR
-        // ==========================================
-        window.addEventListener('DOMContentLoaded', () => {
-            codeEditor = CodeMirror.fromTextArea(document.getElementById("siteCode"), {
-                mode: "htmlmixed",
-                lineNumbers: true, 
-                lineWrapping: false, 
-                indentUnit: 4,     
-                tabSize: 4,
-                indentWithTabs: true,
-                theme: "default"
-            });
-        });
-
-        // ==========================================
-        // LÓGICA DE BUSCA DENTRO DO CÓDIGO
-        // ==========================================
-        function resetCodeSearch() {
-            const input = document.getElementById('codeSearchInput');
-            input.value = '';
-            document.getElementById('codeSearchCount').textContent = '0/0';
-            document.getElementById('clearCodeSearchBtn').style.display = 'none';
-            codeSearchMarks.forEach(m => m.clear());
-            codeSearchMarks = [];
-            codeMatchPositions = [];
-            currentCodeMatchIndex = -1;
-            input.blur();
-        }
-
-        function performCodeSearch() {
-            codeSearchMarks.forEach(m => m.clear());
-            codeSearchMarks = [];
-            codeMatchPositions = [];
-            currentCodeMatchIndex = -1;
-
-            const query = document.getElementById('codeSearchInput').value;
-            const countDisplay = document.getElementById('codeSearchCount');
-            const clearBtn = document.getElementById('clearCodeSearchBtn');
-
-            if (!query) {
-                countDisplay.textContent = '0/0';
-                clearBtn.style.display = 'none';
-                return;
-            }
-
-            clearBtn.style.display = 'block';
-
-            const cursor = codeEditor.getSearchCursor(query, null, {caseFold: true});
-            
-            while (cursor.findNext()) {
-                codeMatchPositions.push({from: cursor.from(), to: cursor.to()});
-                const mark = codeEditor.markText(cursor.from(), cursor.to(), {className: 'cm-search-match'});
-                codeSearchMarks.push(mark);
-            }
-
-            if (codeMatchPositions.length > 0) {
-                currentCodeMatchIndex = 0;
-                highlightCurrentCodeMatch();
-            } else {
-                countDisplay.textContent = '0/0';
-            }
-        }
-
-        function highlightCurrentCodeMatch() {
-            if (codeMatchPositions.length === 0) return;
-            const countDisplay = document.getElementById('codeSearchCount');
-            countDisplay.textContent = `${currentCodeMatchIndex + 1}/${codeMatchPositions.length}`;
-            
-            const pos = codeMatchPositions[currentCodeMatchIndex];
-            codeEditor.setSelection(pos.from, pos.to);
-            codeEditor.scrollIntoView({from: pos.from, to: pos.to}, 100);
-        }
-
-        function nextCodeMatch() {
-            if (codeMatchPositions.length === 0) return;
-            currentCodeMatchIndex = (currentCodeMatchIndex + 1) % codeMatchPositions.length;
-            highlightCurrentCodeMatch();
-        }
-
-        function prevCodeMatch() {
-            if (codeMatchPositions.length === 0) return;
-            currentCodeMatchIndex = (currentCodeMatchIndex - 1 + codeMatchPositions.length) % codeMatchPositions.length;
-            highlightCurrentCodeMatch();
-        }
-
-        // ==========================================
-        // BANCO DE DADOS E CORE
-        // ==========================================
         async function initDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
+
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => resolve(request.result);
+
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -427,9 +856,15 @@
                 };
             });
         }
+        
+        //variaveis globais
+        let sites = [];
+        let currentSiteIndex = -1;
+        let editingIndex = -1;
+        let lastOpenedSiteIndex = -1;
+        let siteToExportIndex = -1; // Variável nova para o modal individual
 
-        function normalizeText(t) { return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
-
+        // Carregar sites do armazenamento ou criar site exemplo
         async function loadSites() {
             try {
                 const db = await initDB();
@@ -440,14 +875,22 @@
                 request.onsuccess = () => {
                     if (request.result.length > 0) {
                         sites = request.result.map(item => ({
-                            name: item.name, description: item.description, code: item.code,
-                            _searchIndex: normalizeText(`${item.name} ${item.description || ''}`)
+                            name: item.name,
+                            description: item.description,
+                            code: item.code
                         }));
                     } else {
                         sites = [{
-                            name: "App Exemplo", description: "Exemplo inicial",
-                            code: `<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n  <style>\n    body { font-family: sans-serif; text-align: center; padding: 50px; }\n    h1 { color: #0071e3; }\n  </style>\n</head>\n<body>\n  <h1>Olá!</h1>\n  <p>Edite este código para testar o novo editor.</p>\n</body>\n</html>`,
-                            _searchIndex: normalizeText("App Exemplo Exemplo inicial")
+                            name: "Contador de Cliques",
+                            description: "Ferramenta simples para contar cliques",
+                            code: `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><style>body { text-align: center; padding: 50px; font-family: sans-serif; }</style></head>
+<body>
+    <h1>0</h1>
+    <button onclick="document.querySelector('h1').innerText = parseInt(document.querySelector('h1').innerText) + 1">Clicar!</button>
+</body>
+</html>`
                         }];
                         saveSites();
                     }
@@ -455,30 +898,45 @@
                     const savedLastOpened = localStorage.getItem('lastOpenedSiteIndex');
                     if (savedLastOpened !== null) {
                         const index = parseInt(savedLastOpened);
-                        if (index >= 0 && index < sites.length) lastOpenedSiteIndex = index;
+                        if (index >= 0 && index < sites.length) {
+                            lastOpenedSiteIndex = index;
+                        }
                     }
+
                     renderSites();
                 };
-            } catch (error) { renderSites(); }
+            } catch (error) {
+                console.error('Erro ao carregar sites:', error);
+                renderSites();
+            }
         }
 
+        // Salvar sites no armazenamento indexedb
         async function saveSites() {
             try {
-                sites.forEach(site => { site._searchIndex = normalizeText(`${site.name} ${site.description || ''}`); });
                 const db = await initDB();
                 const transaction = db.transaction([STORE_NAME], 'readwrite');
                 const store = transaction.objectStore(STORE_NAME);
+
                 const clearRequest = store.clear();
-                clearRequest.onsuccess = () => { sites.forEach(site => store.add(site)); };
-            } catch (error) {}
+                clearRequest.onsuccess = () => {
+                    sites.forEach(site => {
+                        store.add(site);
+                    });
+                };
+            } catch (error) {
+                console.error('Erro ao salvar sites:', error);
+            }
         }
 
-        // ==========================================
-        // RENDERIZAÇÃO
-        // ==========================================
+        // Renderizar lista de sites
         function renderSites(append = false) {
             const grid = document.getElementById('sitesGrid');
-            if (!append) { grid.innerHTML = ''; currentPage = 0; }
+
+            if (!append) {
+                grid.innerHTML = '';
+                currentPage = 0;
+            }
 
             let sitesToRender = sites.slice().reverse();
             if (lastOpenedSiteIndex >= 0) {
@@ -495,53 +953,84 @@
                 const index = sites.indexOf(site);
                 const card = document.createElement('div');
                 card.className = 'site-card';
+                // MODIFICADO: Adicionado botão Exportar no cartão
                 card.innerHTML = `
-                    <h3>${site.name}</h3>
-                    <p>${site.description || 'Sem descrição'}</p>
-                    <div class="site-actions">
-                        <button class="btn btn-primary" onclick="openSite(${index})">Abrir</button>
-                        <button class="btn btn-secondary" onclick="editSite(${index})">Editar</button>
-                        <button class="btn btn-secondary" onclick="openExportSingleModal(${index})">↓ Salvar</button>
-                        <button class="btn btn-danger" onclick="deleteSite(${index})">Excluir</button>
-                    </div>
-                `;
+            <h3>${site.name}</h3>
+            <p>${site.description || 'Sem descrição'}</p>
+            <div class="site-actions">
+                <button class="btn btn-primary" onclick="openSite(${index})">Abrir</button>
+                <button class="btn edit-btn" onclick="editSite(${index})">Editar</button>
+                <button class="btn btn-secondary" onclick="openExportSingleModal(${index})">Exportar</button>
+                <button class="btn btn-danger" onclick="deleteSite(${index})">Excluir</button>
+            </div>
+        `;
                 grid.appendChild(card);
             });
 
             if (end < sitesToRender.length) {
                 const loadBtn = document.createElement('button');
                 loadBtn.className = 'btn btn-secondary';
-                loadBtn.textContent = `Carregar mais (${sitesToRender.length - end})`;
-                loadBtn.style.cssText = 'width:100%; grid-column: 1/-1; padding: 15px; margin-top: 10px; border: 1px solid var(--border-color);';
-                loadBtn.onclick = () => { currentPage++; loadBtn.remove(); renderSites(true); };
+                loadBtn.textContent = `Carregar mais (${sitesToRender.length - end} restantes)`;
+                loadBtn.style.cssText = 'width:100%; margin-top:10px; grid-column: 1/-1;';
+                loadBtn.onclick = () => {
+                    currentPage++;
+                    loadBtn.remove();
+                    renderSites(true);
+                };
                 grid.appendChild(loadBtn);
             }
         }
 
+        //Adicionar funcionalidade de pesquisa
         function filterSites(searchTerm) {
-            if (!searchTerm.trim()) { renderSites(); return; }
-            const searchWords = searchTerm.trim().split(/\s+/).map(word => normalizeText(word));
-            const filteredSites = sites.filter(site => { return searchWords.every(word => site._searchIndex.includes(word)); });
-
-            const grid = document.getElementById('sitesGrid');
-            grid.innerHTML = '';
-            if (filteredSites.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; color: #86868b; grid-column: 1/-1; padding: 40px;">Nada encontrado.</p>';
+            if (!searchTerm.trim()) {
+                renderSites();
                 return;
             }
 
-            let sitesToRender = filteredSites.slice().reverse().slice(0, 50); 
+            const searchWords = searchTerm.trim().split(/\s+/).map(word => normalizeText(word));
+
+            const filteredSites = sites.filter(site => {
+                const normalizedName = normalizeText(site.name);
+                const normalizedDesc = site.description ? normalizeText(site.description) : '';
+
+                if (searchWords.length === 1) {
+                    return normalizedName.includes(searchWords[0]) || normalizedDesc.includes(searchWords[0]);
+                } else {
+                    const nameContainsAll = searchWords.every(word => normalizedName.includes(word));
+                    const descContainsAll = searchWords.every(word => normalizedDesc.includes(word));
+                    return nameContainsAll || descContainsAll;
+                }
+            });
+
+            const grid = document.getElementById('sitesGrid');
+            grid.innerHTML = '';
+
+            if (filteredSites.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">Nenhum site encontrado</p>';
+                return;
+            }
+            
+            let sitesToRender = filteredSites.slice().reverse();
+            if (lastOpenedSiteIndex >= 0) {
+                const lastOpenedSite = sites[lastOpenedSiteIndex];
+                if (filteredSites.includes(lastOpenedSite)) {
+                    sitesToRender = sitesToRender.filter(site => site !== lastOpenedSite);
+                    sitesToRender.unshift(lastOpenedSite);
+                }
+            }
             sitesToRender.forEach((site) => {
                 const originalIndex = sites.indexOf(site);
                 const card = document.createElement('div');
                 card.className = 'site-card';
+                // MODIFICADO: Adicionado botão Exportar
                 card.innerHTML = `
                     <h3>${site.name}</h3>
                     <p>${site.description || 'Sem descrição'}</p>
                     <div class="site-actions">
                         <button class="btn btn-primary" onclick="openSite(${originalIndex})">Abrir</button>
-                        <button class="btn btn-secondary" onclick="editSite(${originalIndex})">Editar</button>
-                        <button class="btn btn-secondary" onclick="openExportSingleModal(${originalIndex})">↓ Salvar</button>
+                        <button class="btn edit-btn" onclick="editSite(${originalIndex})">Editar</button>
+                        <button class="btn btn-secondary" onclick="openExportSingleModal(${originalIndex})">Exportar</button>
                         <button class="btn btn-danger" onclick="deleteSite(${originalIndex})">Excluir</button>
                     </div>
                 `;
@@ -549,264 +1038,383 @@
             });
         }
 
-        // ==========================================
-        // AÇÕES (ABRIR COM RESSURREIÇÃO DE IFRAME)
-        // ==========================================
+        // Abrir site em tela cheia
         function openSite(index) {
-            currentSiteIndex = index; lastOpenedSiteIndex = index;
+            currentSiteIndex = index;
+            lastOpenedSiteIndex = index;
             localStorage.setItem('lastOpenedSiteIndex', index.toString());
+            console.log('Site aberto - índice:', index, 'nome:', sites[index].name);
             const site = sites[index];
             document.getElementById('fullscreenTitle').textContent = site.name;
             
-            const overlay = document.getElementById('fullscreenOverlay');
+            const iframe = document.getElementById('siteFrame');
+            iframe.srcdoc = '';
+            iframe.srcdoc = site.code;
 
-            // 1. Destrói o iframe antigo por completo
-            const oldIframe = document.getElementById('siteFrame');
-            if (oldIframe) {
-                oldIframe.remove();
-            }
-
-            // 2. Cria um iframe 100% novo (força o navegador a baixar fontes/scripts de novo)
-            const newIframe = document.createElement('iframe');
-            newIframe.id = 'siteFrame';
-            newIframe.className = 'site-frame';
-
-            // 3. Insere o novo iframe na tela ANTES do cabeçalho
-            overlay.insertBefore(newIframe, overlay.querySelector('.fullscreen-header'));
-
-            // 4. Mostra a tela
-            overlay.style.display = 'block';
-
-            // 5. Injeta o código com srcdoc (mantém a origem segura para o banco de dados funcionar localmente)
-            setTimeout(() => {
-                newIframe.srcdoc = site.code;
-            }, 10);
+            document.getElementById('fullscreenOverlay').style.display = 'block';
         }
 
+        // Fechar tela cheia
         function closeFullscreen() {
             const iframe = document.getElementById('siteFrame');
-            if (iframe) iframe.srcdoc = ''; // Limpa para parar vídeos/áudios
+            iframe.srcdoc = '';
+            iframe.src = 'about:blank'; 
             document.getElementById('fullscreenOverlay').style.display = 'none';
-            currentSiteIndex = -1; renderSites();
+            currentSiteIndex = -1;
+            renderSites();
         }
 
+        // Abrir modal para adicionar site
         function openAddSiteModal() {
             editingIndex = -1;
-            document.getElementById('modalTitle').textContent = 'Nova Ferramenta';
+            document.getElementById('modalTitle').textContent = 'Adicionar Nova Ferramenta';
             document.getElementById('siteName').value = '';
             document.getElementById('siteDescription').value = '';
-            
-            resetCodeSearch(); 
-            codeEditor.setValue(''); 
+            document.getElementById('siteCode').value = '';
             document.getElementById('siteModal').style.display = 'block';
-            setTimeout(() => codeEditor.refresh(), 50); 
         }
 
+        // Editar site
         function editSite(index) {
-            if (index < 0 || index >= sites.length) return;
-            editingIndex = index;
-            document.getElementById('modalTitle').textContent = 'Editar Ferramenta';
-            document.getElementById('siteName').value = sites[index].name;
-            document.getElementById('siteDescription').value = sites[index].description || '';
-            
-            resetCodeSearch(); 
-            codeEditor.setValue(sites[index].code); 
-            document.getElementById('siteModal').style.display = 'block';
-            setTimeout(() => codeEditor.refresh(), 50);
-        }
+            if (index < 0 || index >= sites.length) {
+                console.error('Índice de site inválido:', index);
+                return;
+            }
 
+            editingIndex = index;
+            const site = sites[index];
+            document.getElementById('modalTitle').textContent = 'Editar Ferramenta';
+            document.getElementById('siteName').value = site.name;
+            document.getElementById('siteDescription').value = site.description || '';
+            document.getElementById('siteCode').value = site.code;
+            document.getElementById('siteModal').style.display = 'block';
+        }
+        
         function deleteSite(index) {
-            if (confirm(`Excluir permanentemente?`)) {
+            if (index < 0 || index >= sites.length) return;
+
+            const site = sites[index];
+            if (confirm(`Tem certeza que deseja excluir "${site.name}"?`)) {
                 sites.splice(index, 1);
-                if (lastOpenedSiteIndex === index) { lastOpenedSiteIndex = -1; localStorage.removeItem('lastOpenedSiteIndex'); }
-                else if (lastOpenedSiteIndex > index) { lastOpenedSiteIndex--; localStorage.setItem('lastOpenedSiteIndex', lastOpenedSiteIndex); }
-                saveSites(); renderSites();
+                if (lastOpenedSiteIndex === index) {
+                    lastOpenedSiteIndex = -1;
+                    localStorage.removeItem('lastOpenedSiteIndex');
+                } else if (lastOpenedSiteIndex > index) {
+                    lastOpenedSiteIndex--;
+                    localStorage.setItem('lastOpenedSiteIndex', lastOpenedSiteIndex.toString());
+                }
+                saveSites();
+                renderSites();
             }
         }
 
         function editCurrentSite() {
-            if (currentSiteIndex >= 0) {
-                const idx = currentSiteIndex;
+            if (currentSiteIndex >= 0 && currentSiteIndex < sites.length) {
+                const indexToEdit = currentSiteIndex; 
                 closeFullscreen();
-                setTimeout(() => editSite(idx), 100);
+                setTimeout(() => {
+                    editSite(indexToEdit);
+                }, 100);
             }
         }
 
-        function closeSiteModal() { document.getElementById('siteModal').style.display = 'none'; }
+        function closeSiteModal() {
+            document.getElementById('siteModal').style.display = 'none';
+        }
 
         document.getElementById('siteForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            if (!codeEditor.getValue().trim()) { alert("O código não pode estar vazio."); return; }
 
-            const siteData = {
-                name: document.getElementById('siteName').value,
-                description: document.getElementById('siteDescription').value,
-                code: codeEditor.getValue()
-            };
-            if (editingIndex >= 0) sites[editingIndex] = siteData;
-            else sites.push(siteData);
-            saveSites(); renderSites(); closeSiteModal();
+            const name = document.getElementById('siteName').value;
+            const description = document.getElementById('siteDescription').value;
+            const code = document.getElementById('siteCode').value;
+
+            const siteData = { name, description, code };
+
+            if (editingIndex >= 0) {
+                sites[editingIndex] = siteData;
+            } else {
+                sites.push(siteData);
+            }
+
+            saveSites();
+            renderSites();
+            closeSiteModal();
         });
+
+
+        // -----------------------------------------------------------
+        // LÓGICA DE EXPORTAÇÃO (MODAIS E JSZIP)
+        // -----------------------------------------------------------
+
+        function sanitizeFilename(name) { 
+            return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); 
+        }
+
+        function openExportAllModal() { document.getElementById('exportAllModal').style.display = 'block'; }
+        function closeExportAllModal() { document.getElementById('exportAllModal').style.display = 'none'; }
+        
+        function openExportSingleModal(index) {
+            siteToExportIndex = index;
+            document.getElementById('exportSingleModal').style.display = 'block';
+        }
+        function closeExportSingleModal() {
+            siteToExportIndex = -1;
+            document.getElementById('exportSingleModal').style.display = 'none';
+        }
 
         window.addEventListener('click', function (e) {
             if (e.target.classList.contains('modal')) e.target.style.display = 'none';
         });
 
-        // ==========================================
-        // BUSCA PRINCIPAL E VOZ
-        // ==========================================
-        let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', function (e) {
-            const term = e.target.value;
-            document.getElementById('clearSearch').style.display = term.trim() ? 'block' : 'none';
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => filterSites(term), 300);
-        });
-
-        document.getElementById('clearSearch').addEventListener('click', function (e) {
-            e.preventDefault(); 
-            const input = document.getElementById('searchInput');
-            input.value = ''; this.style.display = 'none'; renderSites(); input.blur(); 
-        });
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'pt-BR'; recognition.interimResults = false; recognition.maxAlternatives = 1;
-
-            recognition.onstart = function() { const btn = document.getElementById('btnVoice'); if(btn) btn.classList.add('listening'); };
-            recognition.onresult = function (e) {
-                const transcript = e.results[0][0].transcript.trim();
-                document.getElementById('searchInput').value = transcript;
-                document.getElementById('clearSearch').style.display = 'block';
-                filterSites(transcript);
-            };
-            recognition.onend = function() { const btn = document.getElementById('btnVoice'); if(btn) btn.classList.remove('listening'); };
-            recognition.onerror = function(event) {
-                const btn = document.getElementById('btnVoice'); if(btn) btn.classList.remove('listening');
-                let msg = 'Erro no microfone: ' + event.error;
-                if(event.error === 'not-allowed') msg = 'Acesso ao microfone negado.\n\nNo celular, o navegador EXIGE que o site esteja rodando em uma conexão segura (HTTPS / cadeado) para usar voz.';
-                alert(msg);
-            };
-            window.startVoiceSearch = function() { try { recognition.start(); } catch(e) { console.log("Microfone em uso."); } }
-        } else {
-            window.startVoiceSearch = function() { alert('Busca por voz não suportada ou requer conexão segura (HTTPS).'); }
+        // Exportação Geral (Botão Inferior)
+        function exportAllJSON() {
+            const dataStr = JSON.stringify(sites, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'meus_sites_backup.json';
+            link.click();
+            closeExportAllModal();
         }
 
-        // ==========================================
-        // EXPORTAR / IMPORTAR
-        // ==========================================
-        function sanitizeFilename(name) { return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); }
-        function openExportModal() { document.getElementById('exportModal').style.display = 'block'; }
-        function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
-
-        function exportSitesJSON() {
-            const exportData = sites.map(({_searchIndex, ...rest}) => rest);
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-            const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'backup_ferramentas.json'; link.click();
-            closeExportModal();
-        }
-
-        function exportSitesZip() {
-            if (typeof JSZip === 'undefined') { alert('Erro: ZIP não carregado.'); return; }
+        function exportAllZip() {
+            if (typeof JSZip === 'undefined') { alert('Erro: JSZip não foi carregado. Verifique sua conexão ou se o jszip.min.js existe na pasta.'); return; }
+            
             const zip = new JSZip();
-            const exportData = sites.map(({_searchIndex, ...rest}) => rest);
-            zip.file("sites_backup.json", JSON.stringify(exportData, null, 2));
-            sites.forEach(site => zip.file(`${sanitizeFilename(site.name)}.html`, site.code));
-            zip.generateAsync({ type: "blob" }).then(content => {
-                const link = document.createElement('a'); link.href = URL.createObjectURL(content); link.download = "minhas_ferramentas.zip"; link.click();
+            zip.file("sites_backup.json", JSON.stringify(sites, null, 2));
+            
+            sites.forEach(site => {
+                zip.file(`${sanitizeFilename(site.name)}.html`, site.code);
             });
-            closeExportModal();
+            
+            zip.generateAsync({ type: "blob" }).then(content => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = "minhas_ferramentas_completas.zip";
+                link.click();
+            });
+            closeExportAllModal();
         }
 
-        function openExportSingleModal(index) { siteToExportIndex = index; document.getElementById('exportSingleModal').style.display = 'block'; }
-        function closeExportSingleModal() { siteToExportIndex = -1; document.getElementById('exportSingleModal').style.display = 'none'; }
-
+        // Exportação Individual (Botão no Cartão)
         function executeExportSingle(format) {
             if (siteToExportIndex < 0 || siteToExportIndex >= sites.length) return;
+            
             const site = sites[siteToExportIndex];
-            const { _searchIndex, ...cleanSite } = site; 
             const safeName = sanitizeFilename(site.name);
             const link = document.createElement('a');
 
             if (format === 'html') {
                 const blob = new Blob([site.code], { type: 'text/html' });
-                link.href = URL.createObjectURL(blob); link.download = `${safeName}.html`; link.click();
-            } else if (format === 'json') {
-                const blob = new Blob([JSON.stringify([cleanSite], null, 2)], { type: 'application/json' });
-                link.href = URL.createObjectURL(blob); link.download = `${safeName}.json`; link.click();
+                link.href = URL.createObjectURL(blob);
+                link.download = `${safeName}.html`;
+                link.click();
             } else if (format === 'zip') {
-                if (typeof JSZip === 'undefined') return;
+                if (typeof JSZip === 'undefined') { alert("JSZip não carregado"); return; }
                 const zip = new JSZip();
                 zip.file(`${safeName}.html`, site.code);
-                zip.file(`${safeName}_backup.json`, JSON.stringify([cleanSite], null, 2));
-                zip.generateAsync({ type: "blob" }).then(content => { link.href = URL.createObjectURL(content); link.download = `${safeName}.zip`; link.click(); });
+                zip.file(`${safeName}_backup.json`, JSON.stringify([site], null, 2));
+                
+                zip.generateAsync({ type: "blob" }).then(content => {
+                    link.href = URL.createObjectURL(content);
+                    link.download = `${safeName}.zip`;
+                    link.click();
+                });
             }
             closeExportSingleModal();
         }
 
-        function handleUniversalImport(event) {
-            const file = event.target.files[0]; if (!file) return;
+
+        // -----------------------------------------------------------
+        // LÓGICA DE IMPORTAÇÃO (JSON & ZIP)
+        // -----------------------------------------------------------
+
+        function importSites(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
             const ext = file.name.split('.').pop().toLowerCase();
-            if (ext === 'json') processJSONImport(file);
-            else if (ext === 'zip') processZIPImport(file);
-            else alert("Formato inválido. Use .zip ou .json");
+            if (ext === 'json') {
+                processJSONImport(file);
+            } else if (ext === 'zip') {
+                processZIPImport(file);
+            } else {
+                alert("Formato inválido. Selecione um arquivo .zip ou .json");
+            }
             event.target.value = '';
         }
 
         function processJSONImport(file) {
             const reader = new FileReader();
-            reader.onload = e => {
+            reader.onload = async e => {
                 try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        if (confirm('Misturar aos existentes?\n[OK] = Sim\n[Cancelar] = Substituir tudo')) sites = sites.concat(imported);
-                        else sites = imported;
-                        saveSites(); renderSites(); alert('Sucesso!');
-                    } else alert('JSON inválido!');
-                } catch (err) { alert('Erro: ' + err.message); }
+                    const importedSites = JSON.parse(e.target.result);
+                    if (Array.isArray(importedSites)) {
+                        if (confirm('Deseja ADICIONAR esses sites à sua lista atual? (Se cancelar, todos os atuais serão SUBSTITUÍDOS)')) {
+                            sites = sites.concat(importedSites);
+                        } else {
+                            sites = importedSites;
+                        }
+                        await saveSites();
+                        renderSites();
+                        alert('Ferramentas importadas com sucesso!');
+                    } else {
+                        alert('Arquivo JSON inválido!');
+                    }
+                } catch (error) {
+                    alert('Erro ao importar arquivo JSON: ' + error.message);
+                }
             };
             reader.readAsText(file);
         }
 
         async function processZIPImport(file) {
-            if (typeof JSZip === 'undefined') return;
+            if (typeof JSZip === 'undefined') { alert("Biblioteca JSZip ausente."); return; }
+            
             try {
                 const zip = new JSZip();
                 const contents = await zip.loadAsync(file);
-                let backupFile = Object.keys(contents.files).find(n => n.endsWith('_backup.json') || n === 'sites_backup.json');
+                
+                let backupFile = Object.keys(contents.files).find(n => n.endsWith('.json'));
 
                 if (backupFile) {
+                    // Importando dados puros (JSON) que estavam dentro do ZIP
                     const text = await contents.files[backupFile].async("string");
-                    const imported = JSON.parse(text);
-                    if (Array.isArray(imported)) {
-                        let msg = imported.length === 1 ? `Importar backup de 1 ferramenta?` : 'Substituir tudo pelo backup completo?';
-                        if (confirm(msg)) {
-                            if (imported.length === 1) sites = sites.concat(imported);
-                            else sites = imported;
-                            saveSites(); renderSites(); alert('Sucesso!');
+                    const importedSites = JSON.parse(text);
+                    if (Array.isArray(importedSites)) {
+                        if (confirm('Backup de sistema encontrado no ZIP! Deseja MISTURAR com seus sites atuais? (Cancelar = Substituir tudo)')) {
+                            sites = sites.concat(importedSites);
+                        } else {
+                            sites = importedSites;
                         }
+                        await saveSites();
+                        renderSites();
+                        alert('Dados restaurados com sucesso a partir do ZIP!');
                     }
                 } else {
+                    // Sem JSON. Buscar qualquer arquivo HTML solto e cadastrar como nova ferramenta
                     const newSites = [];
-                    for (let name of Object.keys(contents.files)) {
-                        if (name.endsWith('.html')) {
-                            const html = await contents.files[name].async("string");
-                            newSites.push({ name: name.replace('.html', '').replace(/_/g, ' '), description: 'Importado', code: html });
+                    for (let filename of Object.keys(contents.files)) {
+                        if (filename.endsWith('.html')) {
+                            const htmlContent = await contents.files[filename].async("string");
+                            newSites.push({
+                                name: filename.replace('.html', '').replace(/_/g, ' '),
+                                description: 'Ferramenta importada fisicamente (.html)',
+                                code: htmlContent
+                            });
                         }
                     }
-                    if (newSites.length > 0 && confirm(`Adicionar ${newSites.length} HTMLs?`)) { sites = sites.concat(newSites); saveSites(); renderSites(); alert('Sucesso!'); }
+                    if (newSites.length > 0) {
+                        if (confirm(`Encontradas ${newSites.length} ferramentas HTML no ZIP. Deseja importá-las para sua biblioteca?`)) {
+                            sites = sites.concat(newSites);
+                            await saveSites();
+                            renderSites();
+                            alert('Ferramentas HTML instaladas com sucesso!');
+                        }
+                    } else {
+                        alert("Nenhum arquivo JSON de backup ou código HTML encontrado neste arquivo ZIP.");
+                    }
                 }
-            } catch (err) {}
+            } catch (err) {
+                alert('Erro ao processar o arquivo ZIP: ' + err.message);
+            }
         }
 
-        // ==========================================
-        // INIT
-        // ==========================================
-        function updateOnlineStatus() { document.getElementById('offlineIndicator').style.display = navigator.onLine ? 'none' : 'block'; }
+
+        function normalizeText(text) {
+            return text.toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        // Verifica suporte ao reconhecimento de voz
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'pt-BR'; 
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript.trim();
+
+                const searchInput = document.getElementById('searchInput');
+                const clearBtn = document.getElementById('clearSearch');
+
+                searchInput.value = transcript;
+                clearBtn.style.display = 'block';
+
+                filterSites(transcript);
+            };
+
+            recognition.onerror = function (event) {
+                console.error('Erro no reconhecimento de voz:', event.error);
+            };
+
+            window.startVoiceSearch = function() {
+                recognition.start();
+            }
+        } else {
+            window.startVoiceSearch = function() {
+                alert('Reconhecimento de voz não suportado neste navegador.');
+                console.log("SpeechRecognition não está disponível.");
+            }
+        }
+
+        //service worker para funcionamento offline
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function (registration) {
+                        console.log('SW registrado com sucesso:', registration.scope);
+
+                        registration.addEventListener('updatefound', function () {
+                            console.log('Nova versão do SW disponível');
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log('Falha ao registrar SW:', error);
+                    });
+            });
+        }
+        
+        // Detectar status offline/online
+        function updateOnlineStatus() {
+            const indicator = document.getElementById('offlineIndicator');
+            if (navigator.onLine) {
+                indicator.style.display = 'none';
+                indicator.textContent = '🌐 Online';
+            } else {
+                indicator.style.display = 'block';
+                indicator.textContent = '📱 Modo Offline - Funcionalidade completa disponível';
+            }
+        }
+
+        window.addEventListener('load', function () {
+            updateOnlineStatus();
+
+            fetch('./manifest.json', { method: 'HEAD', cache: 'no-cache' })
+                .then(() => {
+                    console.log('Conectividade confirmada');
+                })
+                .catch(() => {
+                    console.log('Sem conectividade real');
+                    const indicator = document.getElementById('offlineIndicator');
+                    indicator.style.display = 'block';
+                    indicator.textContent = '📱 Modo Offline';
+                });
+        });
+
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
-        window.addEventListener('load', () => { updateOnlineStatus(); loadSites(); });
+        updateOnlineStatus(); 
+        
+        // Carregar sites ao iniciar
+        (async () => {
+            await loadSites();
+        })();
     </script>
 </body>
 </html>
