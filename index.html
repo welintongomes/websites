@@ -17,777 +17,146 @@
 
     <script src="jszip.min.js"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --neon-cyan: #00ffff;
-            --neon-magenta: #ff00ff;
-            --neon-yellow: #ffff00;
-            --neon-blue: #00d4ff;
-            --dark-bg: #0a0a0a;
-            --card-bg: rgba(15, 15, 35, 0.9);
+            --neon-cyan: #00ffff; --neon-magenta: #ff00ff; --neon-yellow: #ffff00;
+            --neon-blue: #00d4ff; --dark-bg: #0a0a0a; --card-bg: rgba(15, 15, 35, 0.9);
         }
 
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background: var(--dark-bg);
-            min-height: 100vh;
-            color: var(--neon-cyan);
-            position: relative;
-            overflow-x: hidden;
-        }
+        body { font-family: 'Rajdhani', sans-serif; background: var(--dark-bg); min-height: 100vh; color: var(--neon-cyan); position: relative; overflow-x: hidden; }
 
-        /* Fundo animado cyberpunk - APENAS DESKTOP */
         @media (min-width: 769px) {
             body::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background:
-                    linear-gradient(45deg, transparent 30%, rgba(255, 0, 255, 0.03) 30%, rgba(255, 0, 255, 0.03) 70%, transparent 70%),
-                    linear-gradient(-45deg, transparent 30%, rgba(0, 255, 255, 0.03) 30%, rgba(0, 255, 255, 0.03) 70%, transparent 70%);
-                background-size: 50px 50px;
-                animation: gridMove 20s linear infinite;
-                z-index: 0;
-                pointer-events: none;
+                content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+                background: linear-gradient(45deg, transparent 30%, rgba(255, 0, 255, 0.03) 30%, rgba(255, 0, 255, 0.03) 70%, transparent 70%),
+                            linear-gradient(-45deg, transparent 30%, rgba(0, 255, 255, 0.03) 30%, rgba(0, 255, 255, 0.03) 70%, transparent 70%);
+                background-size: 50px 50px; animation: gridMove 20s linear infinite;
             }
-
-            @keyframes gridMove {
-                0% { background-position: 0 0, 0 0; }
-                100% { background-position: 50px 50px, -50px 50px; }
-            }
-
-            /* Linhas de scan - APENAS DESKTOP */
             body::after {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(to bottom,
-                        transparent 50%,
-                        rgba(0, 255, 255, 0.02) 50%);
-                background-size: 100% 4px;
-                animation: scanlines 10s linear infinite;
-                z-index: 1;
-                pointer-events: none;
+                content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+                background: linear-gradient(to bottom, transparent 50%, rgba(0, 255, 255, 0.02) 50%); background-size: 100% 4px; animation: scanlines 10s linear infinite;
             }
-
-            @keyframes scanlines {
-                0% { background-position: 0 0; }
-                100% { background-position: 0 100%; }
-            }
+            @keyframes gridMove { 0% { background-position: 0 0, 0 0; } 100% { background-position: 50px 50px, -50px 50px; } }
+            @keyframes scanlines { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
         }
 
-        /* Background simples para mobile - SEM ANIMAÇÕES */
-        @media (max-width: 768px) {
-            body {
-                background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
-            }
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 2; }
+        .header { text-align: center; margin-bottom: 10px; color: white; }
+        .header h1 { font-family: 'Orbitron', sans-serif; font-size: 2.5em; margin-bottom: 0px; background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(255, 0, 255, 0.3), 0 0 30px rgba(0, 255, 255, 0.2); animation: glitchText 3s infinite; letter-spacing: 3px; }
+        @keyframes glitchText { 0%, 90%, 100% { transform: translate(0); } 92% { transform: translate(-2px, 2px); } 94% { transform: translate(2px, -2px); } 96% { transform: translate(-2px, -2px); } }
+        .header p { font-size: 1.1em; opacity: 0.9; color: var(--neon-blue); text-transform: uppercase; letter-spacing: 5px; }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 10px;
-            color: white;
-        }
-
-        .header h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.5em;
-            margin-bottom: 0px;
-            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow:
-                0 0 10px rgba(0, 255, 255, 0.5),
-                0 0 20px rgba(255, 0, 255, 0.3),
-                0 0 30px rgba(0, 255, 255, 0.2);
-            animation: glitchText 3s infinite;
-            letter-spacing: 3px;
-        }
-
-        @keyframes glitchText {
-            0%, 90%, 100% { transform: translate(0); }
-            92% { transform: translate(-2px, 2px); }
-            94% { transform: translate(2px, -2px); }
-            96% { transform: translate(-2px, -2px); }
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            letter-spacing: 5px;
-        }
-
-        .sites-grid {
-            padding: 5.3px 3px 10px 5px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            min-height: 200px;
-            max-height: 71.7vh;
-            overflow-y: auto;
-        }
-
-        /* Scrollbar customizada */
+        .sites-grid { padding: 5.3px 3px 10px 5px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; min-height: 200px; max-height: 71.7vh; overflow-y: auto; }
         .sites-grid::-webkit-scrollbar { width: 4px; }
         .sites-grid::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.5); border-radius: 10px; }
-        .sites-grid::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-magenta));
-            border-radius: 10px;
-            box-shadow: 0 0 10px var(--neon-cyan);
-        }
+        .sites-grid::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--neon-cyan), var(--neon-magenta)); border-radius: 10px; box-shadow: 0 0 10px var(--neon-cyan); }
 
-        .site-card {
-            margin-top: 5px;
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 9px;
-            border: 2px solid transparent;
-            background-image:
-                linear-gradient(var(--card-bg), var(--card-bg)),
-                linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
-            background-origin: border-box;
-            background-clip: padding-box, border-box;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow:
-                0 0 20px rgba(0, 255, 255, 0.1),
-                inset 0 0 20px rgba(0, 255, 255, 0.05);
-        }
-
-        /* Efeito de scan no hover */
-        .site-card::before {
-            content: '';
-            position: absolute;
-            top: -100%;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom,
-                    transparent,
-                    rgba(0, 255, 255, 0.2),
-                    transparent);
-            transition: top 0.6s;
-        }
-
+        .site-card { margin-top: 5px; background: var(--card-bg); border-radius: 15px; padding: 9px; border: 2px solid transparent; background-image: linear-gradient(var(--card-bg), var(--card-bg)), linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta)); background-origin: border-box; background-clip: padding-box, border-box; cursor: pointer; transition: all 0.4s ease; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0, 255, 255, 0.1), inset 0 0 20px rgba(0, 255, 255, 0.05); will-change: transform, box-shadow; }
+        .site-card::before { content: ''; position: absolute; top: -100%; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent, rgba(0, 255, 255, 0.2), transparent); transition: top 0.6s; }
         .site-card:hover::before { top: 100%; }
+        .site-card:hover { transform: translateY(-8px) scale(1.02); border-color: var(--neon-cyan); box-shadow: 0 0 40px rgba(0, 255, 255, 0.4), 0 0 60px rgba(255, 0, 255, 0.2), inset 0 0 30px rgba(0, 255, 255, 0.1); }
+        .site-card h3 { font-family: 'Orbitron', sans-serif; font-size: 1.4em; margin-bottom: 10px; color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); letter-spacing: 2px; white-space: normal; word-break: break-word; overflow-wrap: break-word; cursor: pointer; transition: all 0.3s ease; display: inline-block; }
+        .site-card h3:hover { color: #ffffff; text-shadow: 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-magenta); transform: scale(1.02); }
+        .site-card p { color: rgba(255, 255, 255, 0.7); margin-bottom: 15px; font-size: 1.1em; line-height: 1.5; }
+        .site-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: nowrap; }
 
-        .site-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--neon-cyan);
-            box-shadow:
-                0 0 40px rgba(0, 255, 255, 0.4),
-                0 0 60px rgba(255, 0, 255, 0.2),
-                inset 0 0 30px rgba(0, 255, 255, 0.1);
-        }
-
-        .site-card h3 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.4em;
-            margin-bottom: 10px;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-            letter-spacing: 2px;
-            white-space: normal;
-            word-break: break-word;
-            overflow-wrap: break-word;
-            cursor: pointer; /* Adicionado: Mostra a mãozinha de clique */
-            transition: all 0.3s ease; /* Adicionado: Deixa a mudança de cor suave */
-            display: inline-block; /* Garante que o clique seja só no texto */
-        }
-
-        /* Adicionado: Brilho forte ao passar o dedo/mouse no título */
-        .site-card h3:hover {
-            color: #ffffff;
-            text-shadow: 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-magenta);
-            transform: scale(1.02);
-        }
-
-        .site-card p {
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            line-height: 1.5;
-        }
-
-        .site-actions {
-    /* margin-left: 2px; */
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: nowrap;
-}
-
-        .btn {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
-            padding: 8px 16px;
-            border: 2px solid;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            font-family: 'Rajdhani', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
+        .btn { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8); padding: 8px 16px; border: 2px solid; border-radius: 8px; cursor: pointer; font-size: 0.9em; transition: all 0.3s ease; font-weight: 500; font-family: 'Rajdhani', sans-serif; text-transform: uppercase; letter-spacing: 1px; background: transparent; position: relative; overflow: hidden; will-change: transform, box-shadow; }
+        .btn::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.2); transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s; }
         .btn:hover::before { width: 300px; height: 300px; }
+        .btn-primary { border-color: var(--neon-cyan); color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+        .btn-primary:hover { background: var(--neon-cyan); color: var(--dark-bg); box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px rgba(0, 255, 255, 0.5); transform: translateY(-2px); }
+        .btn-secondary { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 212, 255, 0.3); }
+        .btn-secondary:hover { background: var(--neon-blue); color: var(--dark-bg); box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0, 212, 255, 0.5); transform: translateY(-2px); }
+        .btn-danger { background: transparent; border-color: #ff0055; color: #ff0055; box-shadow: 0 0 10px rgba(255, 0, 85, 0.3); }
+        .btn-danger:hover { background: #ff0055; color: white; box-shadow: 0 0 20px #ff0055, 0 0 40px rgba(255, 0, 85, 0.5); transform: translateY(-2px); }
 
-        .btn-primary {
-            border-color: var(--neon-cyan);
-            color: var(--neon-cyan);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-        }
+        .add-site-btn { position: fixed; bottom: 1%; right: 5%; width: 60px; height: 60px; border-radius: 38%; background: linear-gradient(135deg, var(--neon-magenta), #ff0055); border: 3px solid var(--neon-magenta); color: white; font-size: 24px; cursor: pointer; box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), 0 0 60px rgba(255, 0, 255, 0.3); transition: all 0.3s ease; z-index: 1000; font-weight: bold; }
+        .add-site-btn:hover { transform: scale(1.15) rotate(90deg); box-shadow: 0 0 50px var(--neon-magenta), 0 0 100px rgba(255, 0, 255, 0.5); }
+        .search-random-btn { position: fixed; bottom: 0.9%; right: 11%; width: 60px; height: 60px; border-radius: 38%; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue)); border: 3px solid var(--neon-cyan); color: var(--dark-bg); font-size: 28px; cursor: pointer; box-shadow: 0 0 30px rgba(0, 255, 255, 0.6), 0 0 60px rgba(0, 255, 255, 0.3); transition: all 0.3s ease; z-index: 1000; }
+        .search-random-btn:hover { transform: scale(1.15); box-shadow: 0 0 50px var(--neon-cyan), 0 0 100px rgba(0, 255, 255, 0.5); }
 
-        .btn-primary:hover {
-            background: var(--neon-cyan);
-            color: var(--dark-bg);
-            box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px rgba(0, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
+        .btnInExp { width: 85%; position: fixed; bottom: 18px; left: 12px; display: flex; z-index: 1000; flex-direction: column; }
+        .fundo { position: relative; left: 15%; }
 
-        .btn-secondary {
-            border-color: var(--neon-blue);
-            color: var(--neon-blue);
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
-        }
-
-        .btn-secondary:hover {
-            background: var(--neon-blue);
-            color: var(--dark-bg);
-            box-shadow: 0 0 20px var(--neon-blue), 0 0 40px rgba(0, 212, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .add-site-btn {
-            position: fixed;
-            bottom: 1%;
-            right: 5%;
-            width: 60px;
-            height: 60px;
-            border-radius: 38%;
-            background: linear-gradient(135deg, var(--neon-magenta), #ff0055);
-            border: 3px solid var(--neon-magenta);
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6),
-                        0 0 60px rgba(255, 0, 255, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            font-weight: bold;
-        }
-
-        .add-site-btn:hover {
-            transform: scale(1.15) rotate(90deg);
-            box-shadow:
-                0 0 50px var(--neon-magenta),
-                0 0 100px rgba(255, 0, 255, 0.5);
-        }
-
-        .search-random-btn {
-            position: fixed;
-            bottom: 0.9%;
-            right: 11%;
-            width: 60px;
-            height: 60px;
-            border-radius: 38%;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
-            border: 3px solid var(--neon-cyan);
-            color: var(--dark-bg);
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow:
-                0 0 30px rgba(0, 255, 255, 0.6),
-                0 0 60px rgba(0, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .search-random-btn:hover {
-            transform: scale(1.15);
-            box-shadow:
-                0 0 50px var(--neon-cyan),
-                0 0 100px rgba(0, 255, 255, 0.5);
-        }
-
-        .fullscreen-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            z-index: 9999;
-        }
-
-        .fullscreen-content {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .fullscreen-header {
-            background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(30, 0, 50, 0.95));
-            color: var(--neon-cyan);
-            padding: 3px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: normal;
-            border-bottom: 2px solid var(--neon-cyan);
-            box-shadow: 0 5px 30px rgba(0, 255, 255, 0.3);
-        }
-
-        .fullscreen-header h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.3em;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-        }
-
-        .close-btn {
-            background: transparent;
-            border: 2px solid #ff0055;
-            color: #ff0055;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-        }
-
-        .close-btn:hover {
-            background: #ff0055;
-            color: white;
-            box-shadow: 0 0 20px #ff0055;
-        }
-
-        .edit-btn {
-            background: transparent;
-            border: 2px solid var(--neon-magenta);
-            color: var(--neon-magenta);
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-        }
-
-        .edit-btn:hover {
-            background: var(--neon-magenta);
-            color: var(--dark-bg);
-            box-shadow: 0 0 20px var(--neon-magenta);
-        }
-
-        .site-frame {
-            flex: 1;
-            border: none;
-            background: white;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 3000;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 2px solid var(--neon-cyan);
-            box-shadow:
-                0 0 50px rgba(0, 255, 255, 0.4),
-                0 0 100px rgba(255, 0, 255, 0.2);
-        }
-
-        .modal-content h2 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--neon-cyan);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-        }
-
-        .form-group { margin-bottom: 20px; }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            white-space: pre;
-            width: 100%;
-            padding: 12px;
-            border: 2px solid rgba(0, 255, 255, 0.3);
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-        }
-
-        .form-group textarea {
-            font-size: 12px;
-            height: 156px;
-            font-family: 'Courier New', monospace;
-            resize: vertical;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-#clearSearch {
-    position: absolute;
-    left: 14.6%;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--neon-cyan);
-    cursor: pointer;
-    display: none;
-    font-size: 32px;
-    font-weight: bold;
-    width: 46px;
-    height: 40px;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-}
-
-        #clearSearch:hover {
-            background: rgba(0, 255, 255, 0.2);
-            color: var(--neon-magenta);
-            transform: translateY(-50%) rotate(90deg);
-        }
-
-        .search-container {
-            width: 90%;
-            margin-bottom: 20px;
-            position: relative;
-            display: inline-block;
-        }
-
-        #searchInput {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 20px;
-            position: relative;
-            left: 14%;
-            padding: 7px 5px 7px 38px;
-            width: 100%;
-            border-radius: 25px;
-            background: rgba(15, 15, 35, 0.8);
-            border: 2px solid var(--neon-cyan);
-            color: var(--neon-cyan);
-            outline: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2),
-                        inset 0 0 20px rgba(0, 255, 255, 0.1);
-        }
-
+        .search-container { width: 90%; margin-bottom: 20px; position: relative; display: inline-block; }
+        #searchInput { font-family: 'Rajdhani', sans-serif; font-size: 20px; position: relative; left: 14%; padding: 7px 5px 7px 38px; width: 100%; border-radius: 25px; background: rgba(15, 15, 35, 0.8); border: 2px solid var(--neon-cyan); color: var(--neon-cyan); outline: none; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1); }
         #searchInput::placeholder { color: rgba(0, 255, 255, 0.5); }
-        #searchInput:focus {
-            border-color: var(--neon-magenta);
-            box-shadow:
-                0 0 30px rgba(255, 0, 255, 0.4),
-                inset 0 0 30px rgba(255, 0, 255, 0.1);
-        }
+        #searchInput:focus { border-color: var(--neon-magenta); box-shadow: 0 0 30px rgba(255, 0, 255, 0.4), inset 0 0 30px rgba(255, 0, 255, 0.1); }
+        #clearSearch { position: absolute; left: 14.6%; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--neon-cyan); cursor: pointer; display: none; font-size: 32px; font-weight: bold; width: 46px; height: 40px; border-radius: 50%; transition: all 0.3s ease; }
+        #clearSearch:hover { background: rgba(0, 255, 255, 0.2); color: var(--neon-magenta); transform: translateY(-50%) rotate(90deg); }
 
-        .btnInExp {
-            width: 85%;
-            position: fixed;
-            bottom: 18px;
-            left: 12px;
-            display: flex;
-            z-index: 1000;
-            flex-direction: column;
-        }
+        .fullscreen-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000000; z-index: 9999; }
+        .fullscreen-content { width: 100%; height: 100%; display: flex; flex-direction: column; }
+        .fullscreen-header { background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(30, 0, 50, 0.95)); color: var(--neon-cyan); padding: 3px 20px; display: flex; justify-content: space-between; align-items: normal; border-bottom: 2px solid var(--neon-cyan); box-shadow: 0 5px 30px rgba(0, 255, 255, 0.3); }
+        .fullscreen-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.3em; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+        
+        .close-btn { background: transparent; border: 2px solid #ff0055; color: #ff0055; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; transition: all 0.3s ease; }
+        .close-btn:hover { background: #ff0055; color: white; box-shadow: 0 0 20px #ff0055; }
+        .edit-btn { background: transparent; border: 2px solid var(--neon-magenta); color: var(--neon-magenta); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; transition: all 0.3s ease; }
+        .edit-btn:hover { background: var(--neon-magenta); color: var(--dark-bg); box-shadow: 0 0 20px var(--neon-magenta); }
+        .site-frame { flex: 1; border: none; background: white; }
 
-        .fundo {
-            position: relative;
-            left: 15%;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 3000; backdrop-filter: blur(10px); }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 2px solid var(--neon-cyan); box-shadow: 0 0 50px rgba(0, 255, 255, 0.4), 0 0 100px rgba(255, 0, 255, 0.2); }
+        .modal-content h2 { font-family: 'Orbitron', sans-serif; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--neon-blue); text-transform: uppercase; letter-spacing: 1px; }
+        .form-group input, .form-group textarea { white-space: pre; width: 100%; padding: 12px; border: 2px solid rgba(0, 255, 255, 0.3); border-radius: 8px; font-size: 1em; transition: border-color 0.3s ease; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); }
+        .form-group textarea { font-size: 12px; height: 156px; font-family: 'Courier New', monospace; resize: vertical; }
+        .form-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        #offlineIndicator { border-radius: 50px; font-size: 12px; height: 21px; width: 30%; background: linear-gradient(90deg, #ff0055, var(--neon-magenta)); color: white; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 20px rgba(255, 0, 255, 0.5); }
 
-        .btn-danger {
-            background: transparent;
-            border-color: #ff0055;
-            color: #ff0055;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
-        }
-
-        .btn-danger:hover {
-            background: #ff0055;
-            color: white;
-            box-shadow: 0 0 20px #ff0055, 0 0 40px rgba(255, 0, 85, 0.5);
-            transform: translateY(-2px);
-        }
-
-        #offlineIndicator {
-            border-radius: 50px;
-            font-size: 12px;
-            height: 21px;
-            width: 30%;
-            background: linear-gradient(90deg, #ff0055, var(--neon-magenta));
-            color: white;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
-        }
-
-        @media (max-width: 768px) {
-            .container { padding: 15px; }
-            .header {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                z-index: 1000;
-                padding: 10px 20px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            }
-            .header h1 { font-size: 1.5em; }
-            .modal-content { padding: 20px; width: 95%; }
-
-            .search-random-btn {
-    position: fixed;
-    bottom: 73px;
-    left: 25px;
-    width: 60px;
-    height: 48px;
-    border-radius: 38%;
-    background: linear-gradient(45deg, #1e90ff, #3742fa);
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4);
-    transition: all 0.3s ease;
-    z-index: 1000;
-}
-
-            .add-site-btn {
-    bottom: 14px;
-    left: 25px;
-    width: 60px;
-    height: 48px;
-    font-size: 20px;
-    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-}
-
-        .btnInExp {
-            width: 85%;
-            position: fixed;
-            bottom: 18px;
-            left: 12px;
-            display: flex;
-            z-index: 1000;
-            flex-direction: column;
-        }
-
-#clearSearch {
-    padding: 2px 16px 11px 6px;
-    position: absolute;
-    left: 83px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: rgb(153, 153, 153);
-    cursor: pointer;
-    display: none;
-    font-size: 30px;
-    font-weight: bold;
-}
-
-            .site-card {
-            margin-top: 5px;
-            background-image: linear-gradient(var(--card-bg), var(--card-bg)),
-                            linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
-            border-radius: 15px;
-            padding: 7px 20px 7px 20px;
-            box-shadow: 0 13px 10px rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        #searchInput {
-            font-size: 20px;
-            position: relative;
-            left: 80px;
-            padding: 7px 5px 7px 46px;
-            width: 97%;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-
-            .fundo { position: relative; left: 20%; }
-            .form-group textarea { font-size: 12px; height: 300px; font-family: 'Courier New', monospace; resize: vertical; }
-            .grid-wrapper { display: flex; flex-direction: column; justify-content: center; min-height: 89vh; }
-            .sites-grid {
-                padding: 30px 0px 60px 0px;
-                padding-bottom: 60px;
-                border-radius: 10px;
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 25px;
-                min-height: 200px;
-                max-height: 67vh;
-                overflow-y: auto;
-            }
-
-            .fullscreen-header {
-                gap: 13px;
-                background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(30, 0, 50, 0.95));
-                color: var(--neon-cyan);
-                padding: 3px 20px;
-                display: flex;
-                flex-wrap: nowrap;
-                align-items: center;
-                justify-content: space-between;
-                border-bottom: 2px solid var(--neon-cyan);
-                box-shadow: 0 5px 30px rgba(0, 255, 255, 0.3);
-                overflow: hidden;
-            }
-
-            .fullscreen-header h2 { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            .fullscreen-header .actions, .fullscreen-header button { flex-shrink: 0; white-space: nowrap; }
-
-            .edit-btn, .close-btn {
-                padding: 3px 15px;
-                font-size: 0.9em;
-            }
-            .site-actions button { padding: 5px 10px; font-size: 0.8em; }
-        }
-        /* =========================================
-           BARRA DE BUSCA E EDITOR HOLOGRÁFICO NEON
-           ========================================= */
-        .code-search-bar {
-            display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
-            background: rgba(0, 255, 255, 0.05); padding: 8px; border-radius: 8px;
-            border: 1px solid rgba(0, 255, 255, 0.2); position: relative;
-        }
-        .code-search-bar input {
-            flex: 1; padding: 8px 7px 8px 40px; border-radius: 6px; font-size: 14px; outline: none;
-            background: rgba(15, 15, 35, 0.8); color: var(--neon-cyan); border: 1px solid rgba(0, 212, 255, 0.5);
-        }
+        /* BUSCA E EDITOR HOLOGRÁFICO NEON (Exatamente original) */
+        .code-search-bar { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; background: rgba(0, 255, 255, 0.05); padding: 8px; border-radius: 8px; border: 1px solid rgba(0, 255, 255, 0.2); position: relative; }
+        .code-search-bar input { flex: 1; padding: 8px 7px 8px 40px; border-radius: 6px; font-size: 14px; outline: none; background: rgba(15, 15, 35, 0.8); color: var(--neon-cyan); border: 1px solid rgba(0, 212, 255, 0.5); }
         .code-search-bar input:focus { border-color: var(--neon-magenta); box-shadow: 0 0 10px rgba(255, 0, 255, 0.3); }
-        
-        #clearCodeSearchBtn {
-            position: absolute; left: 95px; background: none; border: none; font-size: 20px;
-            font-weight: bold; color: #ff0055; cursor: pointer; padding: 8 7px; display: none;
-        }
+        #clearCodeSearchBtn { position: absolute; left: 95px; background: none; border: none; font-size: 20px; font-weight: bold; color: #ff0055; cursor: pointer; padding: 8 7px; display: none; }
         .code-search-bar span { font-size: 13px; color: var(--neon-cyan); min-width: 45px; text-align: center; font-weight: bold; }
-        .code-search-bar button.nav-btn {
-            background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan);
-            border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s;
-        }
+        .code-search-bar button.nav-btn { background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.2s; }
         .code-search-bar button.nav-btn:hover { background: var(--neon-cyan); color: var(--dark-bg); box-shadow: 0 0 10px var(--neon-cyan); }
-
-        .editor-wrapper {
-            position: relative; width: 100%; height: 250px; border: 2px solid rgba(0, 255, 255, 0.3);
-            border-radius: 8px; background: rgba(0, 0, 0, 0.6); overflow: hidden; transition: all 0.3s;
-        }
+        .editor-wrapper { position: relative; width: 100%; height: 250px; border: 2px solid rgba(0, 255, 255, 0.3); border-radius: 8px; background: rgba(0, 0, 0, 0.6); overflow: hidden; transition: all 0.3s; }
         .editor-wrapper:focus-within { border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(0, 255, 255, 0.2); }
-        
-        #siteCodeBackdrop, #siteCode {
-            width: 100% !important; height: 100% !important; padding: 12px; font-family: 'Courier New', monospace;
-            font-size: 12px; line-height: 20px; white-space: pre; overflow-wrap: normal; overflow-x: auto;
-            position: absolute; top: 0; left: 0; border: none; outline: none; margin: 0; resize: none !important;
-        }
+        #siteCodeBackdrop, #siteCode { width: 100% !important; height: 100% !important; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 20px; white-space: pre; overflow-wrap: normal; overflow-x: auto; position: absolute; top: 0; left: 0; border: none; outline: none; margin: 0; resize: none !important; }
         #siteCodeBackdrop { color: transparent; z-index: 1; pointer-events: none; }
         #siteCode { background: transparent; color: var(--neon-cyan); z-index: 2; }
-        
-        /* Cores do Marca-Texto */
         .mark-match { background-color: rgba(255, 0, 255, 0.4); color: transparent; border-radius: 3px; }
         .mark-active { background-color: rgba(0, 255, 255, 0.6); color: transparent; box-shadow: 0 0 0 2px var(--neon-cyan); }
-        
-        @media (max-width: 768px) { .editor-wrapper { height: 270px; } #clearCodeSearchBtn { left: 7px; padding: 6px 15px 4px 14px; font-size: 22px; } }
-    </style>
+
+        /* REGRAS DE MOBILE UNIFICADAS (Mantendo todas as suas posições originais) */
+        @media (max-width: 768px) {
+            body { background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%); }
+            .container { padding: 15px; }
+            .header { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+            .header h1 { font-size: 1.5em; }
+            .modal-content { padding: 20px; width: 95%; }
+            .form-group textarea { font-size: 12px; height: 300px; font-family: 'Courier New', monospace; resize: vertical; }
+            .grid-wrapper { display: flex; flex-direction: column; justify-content: center; min-height: 89vh; }
+            
+            .search-random-btn { position: fixed; bottom: 73px; left: 25px; width: 60px; height: 48px; border-radius: 38%; background: linear-gradient(45deg, #1e90ff, #3742fa); border: none; color: white; font-size: 20px; cursor: pointer; box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4); transition: all 0.3s ease; z-index: 1000; }
+            .add-site-btn { bottom: 14px; left: 25px; width: 60px; height: 48px; font-size: 20px; box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4); }
+            .btnInExp { width: 85%; position: fixed; bottom: 18px; left: 12px; display: flex; z-index: 1000; flex-direction: column; }
+            
+            #clearSearch { padding: 2px 16px 11px 6px; position: absolute; left: 83px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgb(153, 153, 153); cursor: pointer; display: none; font-size: 30px; font-weight: bold; }
+            .site-card { margin-top: 5px; background-image: linear-gradient(var(--card-bg), var(--card-bg)), linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta)); border-radius: 15px; padding: 7px 20px 7px 20px; box-shadow: 0 13px 10px rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+            #searchInput { font-size: 20px; position: relative; left: 80px; padding: 7px 5px 7px 46px; width: 97%; border-radius: 5px; border: 1px solid #ddd; }
+            .fundo { position: relative; left: 20%; }
+            .sites-grid { padding: 30px 0px 60px 0px; padding-bottom: 60px; border-radius: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; min-height: 200px; max-height: 67vh; overflow-y: auto; }
+            
+            .fullscreen-header { gap: 13px; background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(30, 0, 50, 0.95)); color: var(--neon-cyan); padding: 3px 20px; display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--neon-cyan); box-shadow: 0 5px 30px rgba(0, 255, 255, 0.3); overflow: hidden; }
+            .fullscreen-header h2 { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .fullscreen-header .actions, .fullscreen-header button { flex-shrink: 0; white-space: nowrap; }
+            .edit-btn, .close-btn { padding: 3px 15px; font-size: 0.9em; }
+            .site-actions button { padding: 5px 10px; font-size: 0.8em; }
+            
+            .editor-wrapper { height: 270px; }
+            #clearCodeSearchBtn { left: 7px; padding: 6px 15px 4px 14px; font-size: 22px; }
+        }
+</style>
 </head>
 
 <body>
@@ -802,7 +171,7 @@
         </div>
         <div class="grid-wrapper">
             <div class="sites-grid" id="sitesGrid">
-                </div>
+            </div>
         </div>
 
     </div>
@@ -813,10 +182,13 @@
             <button id="clearSearch">×</button>
         </div>
         <div class="fundo">
-            <button class="btn btn-secondary" onclick="openExportAllModal()" style="margin-left: 10px;">Exportar Sites</button>
+            <button class="btn btn-secondary" onclick="openExportAllModal()" style="margin-left: 10px;">Exportar
+                Sites</button>
             <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()"
                 style="margin-left: 10px;">Importar Sites</button>
-            <input type="file" id="importFile" accept=".json, .zip, .html" multiple style="display: none;" onchange="importSites(event)">        </div>
+            <input type="file" id="importFile" accept=".json, .zip, .html" multiple style="display: none;"
+                onchange="importSites(event)">
+        </div>
         <button class="add-site-btn" onclick="openAddSiteModal()">+</button>
         <button class="search-random-btn" onclick="startVoiceSearch()">🎤</button>
 
@@ -836,15 +208,18 @@
                     <div class="form-group">
                         <label>Código HTML:</label>
                         <div class="code-search-bar">
-                            <input type="text" id="codeSearchInput" placeholder="Encontrar no código..." oninput="performCodeSearch()">
-                            <button type="button" id="clearCodeSearchBtn" onclick="resetCodeSearch()" title="Limpar Busca">×</button>
+                            <input type="text" id="codeSearchInput" placeholder="Encontrar no código..."
+                                oninput="performCodeSearch()">
+                            <button type="button" id="clearCodeSearchBtn" onclick="resetCodeSearch()"
+                                title="Limpar Busca">×</button>
                             <span id="codeSearchCount">0/0</span>
                             <button type="button" class="nav-btn" onclick="prevCodeMatch()" title="Anterior">↑</button>
                             <button type="button" class="nav-btn" onclick="nextCodeMatch()" title="Próximo">↓</button>
                         </div>
                         <div class="editor-wrapper">
                             <div id="siteCodeBackdrop"></div>
-                            <textarea id="siteCode" placeholder="Cole aqui o código HTML completo da sua ferramenta..." required spellcheck="false"></textarea>
+                            <textarea id="siteCode" placeholder="Cole aqui o código HTML completo da sua ferramenta..."
+                                required spellcheck="false"></textarea>
                         </div>
                     </div>
                     <div class="form-actions">
@@ -859,8 +234,10 @@
             <div class="modal-content" style="max-width: 400px; text-align: center;">
                 <h2 style="margin-bottom: 20px;">Exportar Todos os Sites</h2>
                 <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <button class="btn btn-primary" onclick="exportAllZip()">📦 Exportar como ZIP (Páginas HTML + JSON)</button>
-                    <button class="btn btn-secondary" onclick="exportAllJSON()">📄 Exportar como JSON (Apenas Dados)</button>
+                    <button class="btn btn-primary" onclick="exportAllZip()">📦 Exportar como ZIP (Páginas HTML +
+                        JSON)</button>
+                    <button class="btn btn-secondary" onclick="exportAllJSON()">📄 Exportar como JSON (Apenas
+                        Dados)</button>
                     <button class="btn btn-danger" onclick="closeExportAllModal()">Cancelar</button>
                 </div>
             </div>
@@ -870,8 +247,10 @@
             <div class="modal-content" style="max-width: 400px; text-align: center;">
                 <h2 style="margin-bottom: 20px;">Salvar Ferramenta</h2>
                 <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <button class="btn btn-primary" onclick="executeExportSingle('html')">🌐 Salvar Página Física (.html)</button>
-                    <button class="btn btn-secondary" onclick="executeExportSingle('zip')">🗜️ Salvar Pacote ZIP (Página + Dados)</button>
+                    <button class="btn btn-primary" onclick="executeExportSingle('html')">🌐 Salvar Página Física
+                        (.html)</button>
+                    <button class="btn btn-secondary" onclick="executeExportSingle('zip')">🗜️ Salvar Pacote ZIP (Página
+                        + Dados)</button>
                     <button class="btn btn-danger" onclick="closeExportSingleModal()">Cancelar</button>
                 </div>
             </div>
@@ -893,9 +272,9 @@
         </div>
 
     </div>
-    
+
     <script>
-        // Configuração do IndexedDB
+        // Configuração do IndexedDB (Agora com Lazy Load)
         const DB_NAME = 'SitesManagerDB';
         const DB_VERSION = 1;
         const STORE_NAME = 'sites';
@@ -903,13 +282,21 @@
         let currentPage = 0;
         const ITEMS_PER_PAGE = 3;
 
+        // Variaveis globais (A array 'sites' agora só guarda ID, Nome e Descrição!)
+        let sites = [];
+        let currentSiteIndex = -1;
+        let editingIndex = -1;
+        let lastOpenedSiteIndex = -1;
+        let siteToExportIndex = -1;
+
+        // ==========================================
+        // 1. MOTOR DO BANCO DE DADOS (CRUD)
+        // ==========================================
         async function initDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
-
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => resolve(request.result);
-
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -918,201 +305,112 @@
                 };
             });
         }
-        
-        //variaveis globais
-        let sites = [];
-        let currentSiteIndex = -1;
-        let editingIndex = -1;
-        let lastOpenedSiteIndex = -1;
-        let siteToExportIndex = -1; // Variável nova para o modal individual
 
-        // ==========================================
-        // LÓGICA DO EDITOR HOLOGRÁFICO E BUSCA
-        // ==========================================
-        let codeMatchPositions = [];
-        let currentCodeMatchIndex = -1;
-        const textarea = document.getElementById('siteCode');
-        const backdrop = document.getElementById('siteCodeBackdrop');
-
-        textarea.addEventListener('scroll', () => {
-            backdrop.scrollTop = textarea.scrollTop;
-            backdrop.scrollLeft = textarea.scrollLeft;
-        });
-
-        textarea.addEventListener('input', () => {
-            if (codeMatchPositions.length > 0) resetCodeSearch();
-        });
-
-        function resetCodeSearch() {
-            document.getElementById('codeSearchInput').value = '';
-            document.getElementById('codeSearchCount').textContent = '0/0';
-            document.getElementById('clearCodeSearchBtn').style.display = 'none';
-            codeMatchPositions = [];
-            currentCodeMatchIndex = -1;
-            backdrop.innerHTML = ''; 
+        // Busca o código completo APENAS de um site específico
+        async function getFullSite(id) {
+            const db = await initDB();
+            return new Promise((resolve) => {
+                const tx = db.transaction([STORE_NAME], 'readonly');
+                const request = tx.objectStore(STORE_NAME).get(id);
+                request.onsuccess = () => resolve(request.result);
+            });
         }
 
-        function escapeHtml(unsafe) {
-            return unsafe
-                 .replace(/&/g, "&amp;")
-                 .replace(/</g, "&lt;")
-                 .replace(/>/g, "&gt;")
-                 .replace(/"/g, "&quot;")
-                 .replace(/'/g, "&#039;");
+        // Puxa TUDO do banco (usado APENAS na hora de exportar backup)
+        async function getAllFullSites() {
+            const db = await initDB();
+            return new Promise((resolve) => {
+                const tx = db.transaction([STORE_NAME], 'readonly');
+                const request = tx.objectStore(STORE_NAME).getAll();
+                request.onsuccess = () => resolve(request.result || []);
+            });
         }
 
-        function performCodeSearch() {
-            codeMatchPositions = [];
-            currentCodeMatchIndex = -1;
-            const query = document.getElementById('codeSearchInput').value.toLowerCase();
-            const text = textarea.value;
-            const lowerText = text.toLowerCase();
-
-            if (!query) { resetCodeSearch(); return; }
-
-            document.getElementById('clearCodeSearchBtn').style.display = 'block';
-
-            let startIndex = 0, index;
-            while ((index = lowerText.indexOf(query, startIndex)) > -1) {
-                codeMatchPositions.push({ start: index, end: index + query.length });
-                startIndex = index + query.length;
-            }
-
-            if (codeMatchPositions.length > 0) {
-                let backdropHtml = ''; let lastPos = 0;
-                codeMatchPositions.forEach((pos, i) => {
-                    backdropHtml += escapeHtml(text.substring(lastPos, pos.start));
-                    backdropHtml += `<mark class="mark-match" id="match-${i}">${escapeHtml(text.substring(pos.start, pos.end))}</mark>`;
-                    lastPos = pos.end;
-                });
-                backdropHtml += escapeHtml(text.substring(lastPos));
-                if (text.endsWith('\n')) backdropHtml += '\n ';
-
-                backdrop.innerHTML = backdropHtml;
-                currentCodeMatchIndex = 0;
-                highlightCurrentCodeMatch(); 
-            } else {
-                backdrop.innerHTML = escapeHtml(text);
-                document.getElementById('codeSearchCount').textContent = '0/0';
-            }
+        // Salva ou atualiza um único site no banco
+        async function addOrUpdateSiteToDB(siteData) {
+            const db = await initDB();
+            return new Promise((resolve) => {
+                const tx = db.transaction([STORE_NAME], 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const request = siteData.id ? store.put(siteData) : store.add(siteData);
+                request.onsuccess = () => resolve(request.result); // Retorna o ID
+            });
         }
 
-        function highlightCurrentCodeMatch() {
-            if (codeMatchPositions.length === 0) return;
-            document.getElementById('codeSearchCount').textContent = `${currentCodeMatchIndex + 1}/${codeMatchPositions.length}`;
-            
-            document.querySelectorAll('.mark-match').forEach(el => el.classList.remove('mark-active'));
-            const currentMark = document.getElementById(`match-${currentCodeMatchIndex}`);
-            
-            if (currentMark) {
-                currentMark.classList.add('mark-active');
-                backdrop.scrollTop = currentMark.offsetTop - (backdrop.clientHeight / 2) + (currentMark.clientHeight / 2);
-                backdrop.scrollLeft = currentMark.offsetLeft - (backdrop.clientWidth / 2);
-                textarea.scrollTop = backdrop.scrollTop;
-                textarea.scrollLeft = backdrop.scrollLeft;
-            }
+        async function deleteSiteFromDB(id) {
+            const db = await initDB();
+            return new Promise((resolve) => {
+                const tx = db.transaction([STORE_NAME], 'readwrite');
+                tx.objectStore(STORE_NAME).delete(id);
+                tx.oncomplete = () => resolve();
+            });
         }
 
-        function nextCodeMatch() {
-            if (codeMatchPositions.length === 0) return;
-            currentCodeMatchIndex = (currentCodeMatchIndex + 1) % codeMatchPositions.length;
-            highlightCurrentCodeMatch(); 
-        }
-
-        function prevCodeMatch() {
-            if (codeMatchPositions.length === 0) return;
-            currentCodeMatchIndex = (currentCodeMatchIndex - 1 + codeMatchPositions.length) % codeMatchPositions.length;
-            highlightCurrentCodeMatch();
-        }
-
-        // Suporte à tecla TAB no editor de código
-        textarea.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
-                this.selectionStart = this.selectionEnd = start + 1;
-                if(backdrop.innerHTML !== '') { backdrop.innerHTML = escapeHtml(this.value); resetCodeSearch(); }
-            }
-        });
-
-        // Carregar sites do armazenamento ou criar site exemplo
+        // O SEGREDO DO LAZY LOAD ESTÁ AQUI
         async function loadSites() {
             try {
                 const db = await initDB();
-                const transaction = db.transaction([STORE_NAME], 'readonly');
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.getAll();
+                return new Promise((resolve) => {
+                    const tx = db.transaction([STORE_NAME], 'readonly');
+                    const store = tx.objectStore(STORE_NAME);
+                    const request = store.openCursor();
 
-                request.onsuccess = () => {
-                    if (request.result.length > 0) {
-                        sites = request.result.map(item => ({
-                            name: item.name,
-                            description: item.description,
-                            code: item.code
-                        }));
-                    } else {
-                        sites = [{
-                            name: "Contador de Cliques",
-                            description: "Ferramenta simples para contar cliques",
-                            code: `<!DOCTYPE html>
-<html lang="pt-BR">
-<head><style>body { text-align: center; padding: 50px; font-family: sans-serif; }</style></head>
-<body>
-    <h1>0</h1>
-    <button onclick="document.querySelector('h1').innerText = parseInt(document.querySelector('h1').innerText) + 1">Clicar!</button>
-</body>
-</html>`
-                        }];
-                        saveSites();
-                    }
+                    sites = []; // Limpa a memória RAM
 
-                    const savedLastOpened = localStorage.getItem('lastOpenedSiteIndex');
-                    if (savedLastOpened !== null) {
-                        const index = parseInt(savedLastOpened);
-                        if (index >= 0 && index < sites.length) {
-                            lastOpenedSiteIndex = index;
+                    request.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            // Carrega SÓ O PESO PENA para a RAM (ID, Nome e Descrição)
+                            sites.push({
+                                id: cursor.value.id,
+                                name: cursor.value.name,
+                                description: cursor.value.description
+                            });
+                            cursor.continue(); // Vai pro próximo sem olhar o HTML gigante
+                        } else {
+                            // Acabou de ler o banco
+                            if (sites.length === 0) {
+                                // Cria site de exemplo se o banco estiver vazio
+                                const defaultSite = {
+                                    name: "Contador de Cliques",
+                                    description: "Ferramenta simples de exemplo",
+                                    code: `<!DOCTYPE html>\n<html lang="pt-BR">\n<head><style>body { text-align: center; padding: 50px; font-family: sans-serif; }</style></head>\n<body>\n    <h1>0</h1>\n    <button onclick="document.querySelector('h1').innerText = parseInt(document.querySelector('h1').innerText) + 1">Clicar!</button>\n</body>\n</html>`
+                                };
+                                addOrUpdateSiteToDB(defaultSite).then(newId => {
+                                    sites.push({ id: newId, name: defaultSite.name, description: defaultSite.description });
+                                    finishInitialLoad(resolve);
+                                });
+                            } else {
+                                finishInitialLoad(resolve);
+                            }
                         }
-                    }
-
-                    renderSites();
-                };
+                    };
+                });
             } catch (error) {
                 console.error('Erro ao carregar sites:', error);
                 renderSites();
             }
         }
 
-        // Salvar sites no armazenamento indexedb
-        async function saveSites() {
-            try {
-                const db = await initDB();
-                const transaction = db.transaction([STORE_NAME], 'readwrite');
-                const store = transaction.objectStore(STORE_NAME);
-
-                const clearRequest = store.clear();
-                clearRequest.onsuccess = () => {
-                    sites.forEach(site => {
-                        store.add(site);
-                    });
-                };
-            } catch (error) {
-                console.error('Erro ao salvar sites:', error);
+        function finishInitialLoad(resolve) {
+            const savedLastOpened = localStorage.getItem('lastOpenedSiteIndex');
+            if (savedLastOpened !== null) {
+                const index = parseInt(savedLastOpened);
+                if (index >= 0 && index < sites.length) lastOpenedSiteIndex = index;
             }
+            renderSites();
+            if (resolve) resolve();
         }
 
-        // Renderizar lista de sites
+        // ==========================================
+        // 2. LÓGICA DE INTERFACE E RENDERIZAÇÃO
+        // ==========================================
         function renderSites(append = false) {
             const grid = document.getElementById('sitesGrid');
-
-            if (!append) {
-                grid.innerHTML = '';
-                currentPage = 0;
-            }
+            if (!append) { grid.innerHTML = ''; currentPage = 0; }
 
             let sitesToRender = sites.slice().reverse();
-            if (lastOpenedSiteIndex >= 0) {
+            if (lastOpenedSiteIndex >= 0 && lastOpenedSiteIndex < sites.length) {
                 const lastOpenedSite = sites[lastOpenedSiteIndex];
                 sitesToRender = sitesToRender.filter(site => site !== lastOpenedSite);
                 sitesToRender.unshift(lastOpenedSite);
@@ -1126,17 +424,16 @@
                 const index = sites.indexOf(site);
                 const card = document.createElement('div');
                 card.className = 'site-card';
-                // MODIFICADO: Adicionado botão Exportar no cartão
                 card.innerHTML = `
-            <h3 onclick="openSite(${index})" title="Clique para abrir a ferramenta">${site.name}</h3>
-            <p>${site.description || 'Sem descrição'}</p>
-            <div class="site-actions">
-                <button class="btn btn-primary" onclick="openSite(${index})">Abrir</button>
-                <button class="btn edit-btn" onclick="editSite(${index})">Editar</button>
-                <button class="btn btn-secondary" onclick="openExportSingleModal(${index})">Exportar</button>
-                <button class="btn btn-danger" onclick="deleteSite(${index})">Excluir</button>
-            </div>
-        `;
+                    <h3 onclick="openSite(${index})" title="Clique para abrir a ferramenta">${site.name}</h3>
+                    <p>${site.description || 'Sem descrição'}</p>
+                    <div class="site-actions">
+                        <button class="btn btn-primary" onclick="openSite(${index})">Abrir</button>
+                        <button class="btn edit-btn" onclick="editSite(${index})">Editar</button>
+                        <button class="btn btn-secondary" onclick="openExportSingleModal(${index})">Exportar</button>
+                        <button class="btn btn-danger" onclick="deleteSite(${index})">Excluir</button>
+                    </div>
+                `;
                 grid.appendChild(card);
             });
 
@@ -1145,58 +442,38 @@
                 loadBtn.className = 'btn btn-secondary';
                 loadBtn.textContent = `Carregar mais (${sitesToRender.length - end} restantes)`;
                 loadBtn.style.cssText = 'width:100%; margin-top:10px; grid-column: 1/-1;';
-                loadBtn.onclick = () => {
-                    currentPage++;
-                    loadBtn.remove();
-                    renderSites(true);
-                };
+                loadBtn.onclick = () => { currentPage++; loadBtn.remove(); renderSites(true); };
                 grid.appendChild(loadBtn);
             }
         }
 
-        //Adicionar funcionalidade de pesquisa
         function filterSites(searchTerm) {
-            if (!searchTerm.trim()) {
-                renderSites();
-                return;
-            }
-
+            if (!searchTerm.trim()) { renderSites(); return; }
             const searchWords = searchTerm.trim().split(/\s+/).map(word => normalizeText(word));
 
+            // Busca apenas nos itens leves na RAM! Extremamente rápido.
             const filteredSites = sites.filter(site => {
                 const normalizedName = normalizeText(site.name);
                 const normalizedDesc = site.description ? normalizeText(site.description) : '';
-
                 if (searchWords.length === 1) {
                     return normalizedName.includes(searchWords[0]) || normalizedDesc.includes(searchWords[0]);
                 } else {
-                    const nameContainsAll = searchWords.every(word => normalizedName.includes(word));
-                    const descContainsAll = searchWords.every(word => normalizedDesc.includes(word));
-                    return nameContainsAll || descContainsAll;
+                    return searchWords.every(word => normalizedName.includes(word)) || searchWords.every(word => normalizedDesc.includes(word));
                 }
             });
 
             const grid = document.getElementById('sitesGrid');
             grid.innerHTML = '';
-
             if (filteredSites.length === 0) {
                 grid.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">Nenhum site encontrado</p>';
                 return;
             }
-            
+
             let sitesToRender = filteredSites.slice().reverse();
-            if (lastOpenedSiteIndex >= 0) {
-                const lastOpenedSite = sites[lastOpenedSiteIndex];
-                if (filteredSites.includes(lastOpenedSite)) {
-                    sitesToRender = sitesToRender.filter(site => site !== lastOpenedSite);
-                    sitesToRender.unshift(lastOpenedSite);
-                }
-            }
             sitesToRender.forEach((site) => {
                 const originalIndex = sites.indexOf(site);
                 const card = document.createElement('div');
                 card.className = 'site-card';
-                // MODIFICADO: Adicionado botão Exportar
                 card.innerHTML = `
                     <h3 onclick="openSite(${originalIndex})" title="Clique para abrir a ferramenta">${site.name}</h3>
                     <p>${site.description || 'Sem descrição'}</p>
@@ -1211,82 +488,88 @@
             });
         }
 
-// Abrir site em tela cheia
-        function openSite(index) {
+        // ==========================================
+        // 3. ABRIR E HIBERNAR SITES (Lógica Asíncrona)
+        // ==========================================
+        async function openSite(index) {
             currentSiteIndex = index;
             lastOpenedSiteIndex = index;
             localStorage.setItem('lastOpenedSiteIndex', index.toString());
-            console.log('Site aberto - índice:', index, 'nome:', sites[index].name);
-            const site = sites[index];
-            document.getElementById('fullscreenTitle').textContent = site.name;
-            
-            const iframe = document.getElementById('siteFrame');
-            iframe.srcdoc = '';
-            iframe.srcdoc = site.code;
 
-            document.getElementById('fullscreenOverlay').style.display = 'block';
-            
-            // 💤 HIBERNAÇÃO CORRIGIDA: Oculta os itens um por um para não esconder o overlay
+            const siteLight = sites[index];
+            document.getElementById('fullscreenTitle').textContent = siteLight.name;
+
+            // 💤 HIBERNAÇÃO
             document.querySelector('.container').style.display = 'none';
             document.querySelector('.search-container').style.display = 'none';
             document.querySelector('.fundo').style.display = 'none';
             document.querySelector('.add-site-btn').style.display = 'none';
             document.querySelector('.search-random-btn').style.display = 'none';
+
+            document.getElementById('fullscreenOverlay').style.display = 'block';
+
+            // ⚡ Puxa o código gigante SÓ AGORA do cofre!
+            const fullSite = await getFullSite(siteLight.id);
+            document.getElementById('siteFrame').srcdoc = fullSite.code;
         }
 
-       
-// Fechar tela cheia e Acordar o sistema
         function closeFullscreen() {
-            const iframe = document.getElementById('siteFrame');
-            
-            // ☀️ ACORDAR O SISTEMA: Devolve o padrão original de cada botão
+            const oldIframe = document.getElementById('siteFrame');
+
+            // ☀️ ACORDA O SISTEMA
             document.querySelector('.container').style.display = '';
             document.querySelector('.search-container').style.display = '';
             document.querySelector('.fundo').style.display = '';
             document.querySelector('.add-site-btn').style.display = '';
             document.querySelector('.search-random-btn').style.display = '';
-            
-            iframe.srcdoc = '';
-            iframe.src = 'about:blank'; 
+
+            // 🗑️ TRITURADOR DE MEMÓRIA (Destrói lixo de JS do iframe velho)
+            const newIframe = document.createElement('iframe');
+            newIframe.className = 'site-frame';
+            newIframe.id = 'siteFrame';
+            newIframe.style.cssText = 'width:100%; height:100%; border:none; background:#fff;';
+            oldIframe.replaceWith(newIframe);
+
             document.getElementById('fullscreenOverlay').style.display = 'none';
             currentSiteIndex = -1;
             renderSites();
         }
 
-
-        // Abrir modal para adicionar site
+        // ==========================================
+        // 4. EDIÇÃO E SALVAMENTO DE SITES
+        // ==========================================
         function openAddSiteModal() {
             editingIndex = -1;
             document.getElementById('modalTitle').textContent = 'Adicionar Nova Ferramenta';
             document.getElementById('siteName').value = '';
             document.getElementById('siteDescription').value = '';
             document.getElementById('siteCode').value = '';
-            resetCodeSearch(); // <- Limpa a busca anterior
+            resetCodeSearch();
             document.getElementById('siteModal').style.display = 'block';
         }
 
-        // Editar site
-        function editSite(index) {
-            if (index < 0 || index >= sites.length) {
-                console.error('Índice de site inválido:', index);
-                return;
-            }
-
-            editingIndex = index;
-            const site = sites[index];
-            document.getElementById('modalTitle').textContent = 'Editar Ferramenta';
-            document.getElementById('siteName').value = site.name;
-            document.getElementById('siteDescription').value = site.description || '';
-            document.getElementById('siteCode').value = site.code;
-            resetCodeSearch(); // <- Limpa a busca anterior
-            document.getElementById('siteModal').style.display = 'block';
-        }
-        
-        function deleteSite(index) {
+        async function editSite(index) {
             if (index < 0 || index >= sites.length) return;
+            editingIndex = index;
+            const siteLight = sites[index];
 
+            document.getElementById('modalTitle').textContent = 'Editar Ferramenta';
+            document.getElementById('siteName').value = siteLight.name;
+            document.getElementById('siteDescription').value = siteLight.description || '';
+            document.getElementById('siteCode').value = 'Buscando código pesado do banco... ⏳';
+            resetCodeSearch();
+            document.getElementById('siteModal').style.display = 'block';
+
+            // Busca o código pesado e preenche
+            const fullSite = await getFullSite(siteLight.id);
+            document.getElementById('siteCode').value = fullSite.code;
+        }
+
+        async function deleteSite(index) {
+            if (index < 0 || index >= sites.length) return;
             const site = sites[index];
             if (confirm(`Tem certeza que deseja excluir "${site.name}"?`)) {
+                await deleteSiteFromDB(site.id); // Deleta direto do banco
                 sites.splice(index, 1);
                 if (lastOpenedSiteIndex === index) {
                     lastOpenedSiteIndex = -1;
@@ -1295,73 +578,56 @@
                     lastOpenedSiteIndex--;
                     localStorage.setItem('lastOpenedSiteIndex', lastOpenedSiteIndex.toString());
                 }
-                saveSites();
                 renderSites();
             }
         }
 
         function editCurrentSite() {
             if (currentSiteIndex >= 0 && currentSiteIndex < sites.length) {
-                const indexToEdit = currentSiteIndex; 
+                const indexToEdit = currentSiteIndex;
                 closeFullscreen();
-                setTimeout(() => {
-                    editSite(indexToEdit);
-                }, 100);
+                setTimeout(() => { editSite(indexToEdit); }, 100);
             }
         }
 
-        function closeSiteModal() {
-            document.getElementById('siteModal').style.display = 'none';
-        }
+        function closeSiteModal() { document.getElementById('siteModal').style.display = 'none'; }
 
-        document.getElementById('siteForm').addEventListener('submit', function (e) {
+        document.getElementById('siteForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-
             const name = document.getElementById('siteName').value;
             const description = document.getElementById('siteDescription').value;
             const code = document.getElementById('siteCode').value;
 
-            const siteData = { name, description, code };
+            let siteData = { name, description, code };
 
             if (editingIndex >= 0) {
-                sites[editingIndex] = siteData;
+                siteData.id = sites[editingIndex].id; // Mantém o mesmo ID
+                await addOrUpdateSiteToDB(siteData);
+                sites[editingIndex] = { id: siteData.id, name, description }; // Atualiza a RAM
             } else {
-                sites.push(siteData);
+                const newId = await addOrUpdateSiteToDB(siteData);
+                sites.push({ id: newId, name, description }); // Adiciona na RAM
             }
-
-            saveSites();
             renderSites();
             closeSiteModal();
         });
 
-
-        // -----------------------------------------------------------
-        // LÓGICA DE EXPORTAÇÃO (MODAIS E JSZIP)
-        // -----------------------------------------------------------
-
-        function sanitizeFilename(name) { 
-            return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); 
-        }
-
+        // ==========================================
+        // 5. EXPORTAÇÃO E IMPORTAÇÃO
+        // ==========================================
+        function sanitizeFilename(name) { return name.replace(/[^a-z0-9]/gi, '_').toLowerCase(); }
         function openExportAllModal() { document.getElementById('exportAllModal').style.display = 'block'; }
         function closeExportAllModal() { document.getElementById('exportAllModal').style.display = 'none'; }
-        
-        function openExportSingleModal(index) {
-            siteToExportIndex = index;
-            document.getElementById('exportSingleModal').style.display = 'block';
-        }
-        function closeExportSingleModal() {
-            siteToExportIndex = -1;
-            document.getElementById('exportSingleModal').style.display = 'none';
-        }
+        function openExportSingleModal(index) { siteToExportIndex = index; document.getElementById('exportSingleModal').style.display = 'block'; }
+        function closeExportSingleModal() { siteToExportIndex = -1; document.getElementById('exportSingleModal').style.display = 'none'; }
 
         window.addEventListener('click', function (e) {
             if (e.target.classList.contains('modal')) e.target.style.display = 'none';
         });
 
-        // Exportação Geral (Botão Inferior)
-        function exportAllJSON() {
-            const dataStr = JSON.stringify(sites, null, 2);
+        async function exportAllJSON() {
+            const allData = await getAllFullSites(); // Puxa todos com os códigos
+            const dataStr = JSON.stringify(allData, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(dataBlob);
@@ -1370,16 +636,12 @@
             closeExportAllModal();
         }
 
-        function exportAllZip() {
-            if (typeof JSZip === 'undefined') { alert('Erro: JSZip não foi carregado. Verifique sua conexão ou se o jszip.min.js existe na pasta.'); return; }
-            
+        async function exportAllZip() {
+            if (typeof JSZip === 'undefined') { alert('Erro: JSZip não carregado.'); return; }
+            const allData = await getAllFullSites();
             const zip = new JSZip();
-            zip.file("sites_backup.json", JSON.stringify(sites, null, 2));
-            
-            sites.forEach(site => {
-                zip.file(`${sanitizeFilename(site.name)}.html`, site.code);
-            });
-            
+            zip.file("sites_backup.json", JSON.stringify(allData, null, 2));
+            allData.forEach(site => { zip.file(`${sanitizeFilename(site.name)}.html`, site.code); });
             zip.generateAsync({ type: "blob" }).then(content => {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(content);
@@ -1389,25 +651,23 @@
             closeExportAllModal();
         }
 
-        // Exportação Individual (Botão no Cartão)
-        function executeExportSingle(format) {
+        async function executeExportSingle(format) {
             if (siteToExportIndex < 0 || siteToExportIndex >= sites.length) return;
-            
-            const site = sites[siteToExportIndex];
-            const safeName = sanitizeFilename(site.name);
+            const siteLight = sites[siteToExportIndex];
+            const fullSite = await getFullSite(siteLight.id); // Puxa código individual
+            const safeName = sanitizeFilename(fullSite.name);
             const link = document.createElement('a');
 
             if (format === 'html') {
-                const blob = new Blob([site.code], { type: 'text/html' });
+                const blob = new Blob([fullSite.code], { type: 'text/html' });
                 link.href = URL.createObjectURL(blob);
                 link.download = `${safeName}.html`;
                 link.click();
             } else if (format === 'zip') {
                 if (typeof JSZip === 'undefined') { alert("JSZip não carregado"); return; }
                 const zip = new JSZip();
-                zip.file(`${safeName}.html`, site.code);
-                zip.file(`${safeName}_backup.json`, JSON.stringify([site], null, 2));
-                
+                zip.file(`${safeName}.html`, fullSite.code);
+                zip.file(`${safeName}_backup.json`, JSON.stringify([fullSite], null, 2));
                 zip.generateAsync({ type: "blob" }).then(content => {
                     link.href = URL.createObjectURL(content);
                     link.download = `${safeName}.zip`;
@@ -1417,50 +677,43 @@
             closeExportSingleModal();
         }
 
-
-        // -----------------------------------------------------------
-        // LÓGICA DE IMPORTAÇÃO (JSON & ZIP)
-        // -----------------------------------------------------------
-
         function importSites(event) {
             const files = event.target.files;
             if (!files || files.length === 0) return;
-
-            // Loop para suportar a importação de VÁRIOS arquivos ao mesmo tempo!
             Array.from(files).forEach(file => {
                 const ext = file.name.split('.').pop().toLowerCase();
-                if (ext === 'json') {
-                    processJSONImport(file);
-                } else if (ext === 'zip') {
-                    processZIPImport(file);
-                } else if (ext === 'html') {
-                    processHTMLImport(file); // Nova rota para o .html
-                } else {
-                    alert(`O arquivo ${file.name} tem um formato inválido. Selecione .zip, .json ou .html`);
-                }
+                if (ext === 'json') processJSONImport(file);
+                else if (ext === 'zip') processZIPImport(file);
+                else if (ext === 'html') processHTMLImport(file);
             });
             event.target.value = '';
         }
 
-        // NOVA FUNÇÃO: Ler arquivos .html soltos e transformar em ferramenta
         function processHTMLImport(file) {
             const reader = new FileReader();
             reader.onload = async e => {
-                const htmlContent = e.target.result;
-                // Usa o nome do arquivo como nome da ferramenta (tirando o .html e underlines)
                 const siteName = file.name.replace('.html', '').replace(/_/g, ' ');
-                
-                const newSite = {
-                    name: siteName,
-                    description: 'Página física importada (.html)',
-                    code: htmlContent
-                };
-                
-                sites.push(newSite);
-                await saveSites();
+                const newId = await addOrUpdateSiteToDB({ name: siteName, description: 'Importada (.html)', code: e.target.result });
+                sites.push({ id: newId, name: siteName, description: 'Importada (.html)' });
                 renderSites();
             };
             reader.readAsText(file);
+        }
+
+        async function handleImportBatch(importedArray, isReplacement) {
+            if (isReplacement) {
+                const db = await initDB();
+                const tx = db.transaction([STORE_NAME], 'readwrite');
+                tx.objectStore(STORE_NAME).clear(); // Limpa banco antigo
+                sites = []; // Limpa RAM
+            }
+            for (let s of importedArray) {
+                delete s.id; // Evita conflito de IDs
+                const newId = await addOrUpdateSiteToDB(s);
+                sites.push({ id: newId, name: s.name, description: s.description });
+            }
+            renderSites();
+            alert('Importação concluída com sucesso!');
         }
 
         function processJSONImport(file) {
@@ -1469,214 +722,167 @@
                 try {
                     const importedSites = JSON.parse(e.target.result);
                     if (Array.isArray(importedSites)) {
-                        if (confirm('Deseja ADICIONAR esses sites à sua lista atual? (Se cancelar, todos os atuais serão SUBSTITUÍDOS)')) {
-                            sites = sites.concat(importedSites);
-                        } else {
-                            sites = importedSites;
-                        }
-                        await saveSites();
-                        renderSites();
-                        alert('Ferramentas importadas com sucesso!');
-                    } else {
-                        alert('Arquivo JSON inválido!');
+                        const append = confirm('Adicionar à lista atual? (Cancelar = APAGAR TUDO e Substituir)');
+                        await handleImportBatch(importedSites, !append);
                     }
-                } catch (error) {
-                    alert('Erro ao importar arquivo JSON: ' + error.message);
-                }
+                } catch (error) { alert('JSON inválido'); }
             };
             reader.readAsText(file);
         }
 
         async function processZIPImport(file) {
-            if (typeof JSZip === 'undefined') { alert("Biblioteca JSZip ausente."); return; }
-            
+            if (typeof JSZip === 'undefined') return;
             try {
                 const zip = new JSZip();
                 const contents = await zip.loadAsync(file);
-                
                 let backupFile = Object.keys(contents.files).find(n => n.endsWith('.json'));
 
                 if (backupFile) {
-                    // Importando dados puros (JSON) que estavam dentro do ZIP
                     const text = await contents.files[backupFile].async("string");
                     const importedSites = JSON.parse(text);
                     if (Array.isArray(importedSites)) {
-                        if (confirm('Backup de sistema encontrado no ZIP! Deseja MISTURAR com seus sites atuais? (Cancelar = Substituir tudo)')) {
-                            sites = sites.concat(importedSites);
-                        } else {
-                            sites = importedSites;
-                        }
-                        await saveSites();
-                        renderSites();
-                        alert('Dados restaurados com sucesso a partir do ZIP!');
+                        const append = confirm('Misturar com os sites atuais? (Cancelar = Substituir tudo)');
+                        await handleImportBatch(importedSites, !append);
                     }
                 } else {
-                    // Sem JSON. Buscar qualquer arquivo HTML solto e cadastrar como nova ferramenta
                     const newSites = [];
                     for (let filename of Object.keys(contents.files)) {
                         if (filename.endsWith('.html')) {
                             const htmlContent = await contents.files[filename].async("string");
-                            newSites.push({
-                                name: filename.replace('.html', '').replace(/_/g, ' '),
-                                description: 'Ferramenta importada fisicamente (.html)',
-                                code: htmlContent
-                            });
+                            newSites.push({ name: filename.replace('.html', '').replace(/_/g, ' '), description: 'Via ZIP', code: htmlContent });
                         }
                     }
-                    if (newSites.length > 0) {
-                        if (confirm(`Encontradas ${newSites.length} ferramentas HTML no ZIP. Deseja importá-las para sua biblioteca?`)) {
-                            sites = sites.concat(newSites);
-                            await saveSites();
-                            renderSites();
-                            alert('Ferramentas HTML instaladas com sucesso!');
-                        }
-                    } else {
-                        alert("Nenhum arquivo JSON de backup ou código HTML encontrado neste arquivo ZIP.");
+                    if (newSites.length > 0 && confirm(`Importar ${newSites.length} ferramentas do ZIP?`)) {
+                        await handleImportBatch(newSites, false);
                     }
                 }
-            } catch (err) {
-                alert('Erro ao processar o arquivo ZIP: ' + err.message);
+            } catch (err) { alert('Erro no ZIP: ' + err.message); }
+        }
+
+        // ==========================================
+        // 6. UTILITÁRIOS (Busca e UI)
+        // ==========================================
+        let codeMatchPositions = [];
+        let currentCodeMatchIndex = -1;
+        const textarea = document.getElementById('siteCode');
+        const backdrop = document.getElementById('siteCodeBackdrop');
+
+        textarea.addEventListener('scroll', () => { backdrop.scrollTop = textarea.scrollTop; backdrop.scrollLeft = textarea.scrollLeft; });
+        textarea.addEventListener('input', () => { if (codeMatchPositions.length > 0) resetCodeSearch(); });
+
+        function resetCodeSearch() {
+            document.getElementById('codeSearchInput').value = '';
+            document.getElementById('codeSearchCount').textContent = '0/0';
+            document.getElementById('clearCodeSearchBtn').style.display = 'none';
+            codeMatchPositions = []; currentCodeMatchIndex = -1; backdrop.innerHTML = '';
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function performCodeSearch() {
+            codeMatchPositions = []; currentCodeMatchIndex = -1;
+            const query = document.getElementById('codeSearchInput').value.toLowerCase();
+            const text = textarea.value;
+            if (!query) { resetCodeSearch(); return; }
+
+            document.getElementById('clearCodeSearchBtn').style.display = 'block';
+            let startIndex = 0, index;
+            while ((index = text.toLowerCase().indexOf(query, startIndex)) > -1) {
+                codeMatchPositions.push({ start: index, end: index + query.length });
+                startIndex = index + query.length;
+            }
+
+            if (codeMatchPositions.length > 0) {
+                let html = ''; let lastPos = 0;
+                codeMatchPositions.forEach((pos, i) => {
+                    html += escapeHtml(text.substring(lastPos, pos.start)) + `<mark class="mark-match" id="match-${i}">${escapeHtml(text.substring(pos.start, pos.end))}</mark>`;
+                    lastPos = pos.end;
+                });
+                backdrop.innerHTML = html + escapeHtml(text.substring(lastPos)) + (text.endsWith('\n') ? '\n ' : '');
+                currentCodeMatchIndex = 0; highlightCurrentCodeMatch();
+            } else {
+                backdrop.innerHTML = escapeHtml(text); document.getElementById('codeSearchCount').textContent = '0/0';
             }
         }
 
-
-        function normalizeText(text) {
-            return text.toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '');
+        function highlightCurrentCodeMatch() {
+            if (codeMatchPositions.length === 0) return;
+            document.getElementById('codeSearchCount').textContent = `${currentCodeMatchIndex + 1}/${codeMatchPositions.length}`;
+            document.querySelectorAll('.mark-match').forEach(el => el.classList.remove('mark-active'));
+            const mark = document.getElementById(`match-${currentCodeMatchIndex}`);
+            if (mark) {
+                mark.classList.add('mark-active');
+                backdrop.scrollTop = mark.offsetTop - (backdrop.clientHeight / 2) + (mark.clientHeight / 2);
+                backdrop.scrollLeft = mark.offsetLeft - (backdrop.clientWidth / 2);
+                textarea.scrollTop = backdrop.scrollTop; textarea.scrollLeft = backdrop.scrollLeft;
+            }
         }
 
-        // Verifica suporte ao reconhecimento de voz
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        function nextCodeMatch() { if (codeMatchPositions.length) { currentCodeMatchIndex = (currentCodeMatchIndex + 1) % codeMatchPositions.length; highlightCurrentCodeMatch(); } }
+        function prevCodeMatch() { if (codeMatchPositions.length) { currentCodeMatchIndex = (currentCodeMatchIndex - 1 + codeMatchPositions.length) % codeMatchPositions.length; highlightCurrentCodeMatch(); } }
 
-        // ==========================================
-        // BUSCA PRINCIPAL (DIGITAÇÃO E BOTÃO LIMPAR)
-        // ==========================================
+        textarea.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart, end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                if (backdrop.innerHTML !== '') { backdrop.innerHTML = escapeHtml(this.value); resetCodeSearch(); }
+            }
+        });
+
+        function normalizeText(text) { return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+
+        // Busca e Voz
         let searchTimeout;
         const mainSearchInput = document.getElementById('searchInput');
         const mainClearBtn = document.getElementById('clearSearch');
-
         if (mainSearchInput && mainClearBtn) {
-            // Escuta cada vez que você digita ou apaga uma letra
-            mainSearchInput.addEventListener('input', function (e) {
-                const searchTerm = e.target.value;
-
-                // Mostra ou esconde o botão "X"
-                if (searchTerm.trim() !== '') {
-                    mainClearBtn.style.display = 'block';
-                } else {
-                    mainClearBtn.style.display = 'none';
-                }
-
-                // Espera você parar de digitar por 300ms antes de buscar (evita travamentos)
+            mainSearchInput.addEventListener('input', e => {
+                mainClearBtn.style.display = e.target.value.trim() !== '' ? 'block' : 'none';
                 clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    filterSites(searchTerm);
-                }, 300);
+                searchTimeout = setTimeout(() => filterSites(e.target.value), 300);
             });
-
-            // O que acontece quando clica no botão "X"
-            mainClearBtn.addEventListener('click', function () {
-                mainSearchInput.value = '';
-                mainClearBtn.style.display = 'none';
-                renderSites(); // Mostra todos os sites de novo
-                mainSearchInput.focus(); // Mantém o teclado aberto
-            });
-
-            // Bônus: Limpar a busca apertando a tecla "Esc" do teclado (se usar no PC)
-            mainSearchInput.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    mainSearchInput.value = '';
-                    mainClearBtn.style.display = 'none';
-                    renderSites();
-                }
-            });
+            mainClearBtn.addEventListener('click', () => { mainSearchInput.value = ''; mainClearBtn.style.display = 'none'; renderSites(); mainSearchInput.focus(); });
+            mainSearchInput.addEventListener('keydown', e => { if (e.key === 'Escape') mainClearBtn.click(); });
         }
 
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
             const recognition = new SpeechRecognition();
-            recognition.lang = 'pt-BR'; 
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
-            recognition.onresult = function (event) {
-                const transcript = event.results[0][0].transcript.trim();
-
-                const searchInput = document.getElementById('searchInput');
-                const clearBtn = document.getElementById('clearSearch');
-
-                searchInput.value = transcript;
-                clearBtn.style.display = 'block';
-
-                filterSites(transcript);
+            recognition.lang = 'pt-BR'; recognition.interimResults = false; recognition.maxAlternatives = 1;
+            recognition.onresult = e => {
+                const txt = e.results[0][0].transcript.trim();
+                document.getElementById('searchInput').value = txt;
+                document.getElementById('clearSearch').style.display = 'block';
+                filterSites(txt);
             };
-
-            recognition.onerror = function (event) {
-                console.error('Erro no reconhecimento de voz:', event.error);
-            };
-
-            window.startVoiceSearch = function() {
-                recognition.start();
-            }
+            window.startVoiceSearch = () => recognition.start();
         } else {
-            window.startVoiceSearch = function() {
-                alert('Reconhecimento de voz não suportado neste navegador.');
-                console.log("SpeechRecognition não está disponível.");
-            }
+            window.startVoiceSearch = () => alert('Voz não suportada neste navegador.');
         }
 
-        //service worker para funcionamento offline
+        // Offline / Service Worker
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function () {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(function (registration) {
-                        console.log('SW registrado com sucesso:', registration.scope);
-
-                        registration.addEventListener('updatefound', function () {
-                            console.log('Nova versão do SW disponível');
-                        });
-                    })
-                    .catch(function (error) {
-                        console.log('Falha ao registrar SW:', error);
-                    });
-            });
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW falhou', e)));
         }
-        
-        // Detectar status offline/online
         function updateOnlineStatus() {
-            const indicator = document.getElementById('offlineIndicator');
-            if (navigator.onLine) {
-                indicator.style.display = 'none';
-                indicator.textContent = '🌐 Online';
-            } else {
-                indicator.style.display = 'block';
-                indicator.textContent = '📱 Modo Offline - Funcionalidade completa disponível';
-            }
+            const ind = document.getElementById('offlineIndicator');
+            if (navigator.onLine) { ind.style.display = 'none'; ind.textContent = '🌐 Online'; }
+            else { ind.style.display = 'block'; ind.textContent = '📱 Modo Offline'; }
         }
-
-        window.addEventListener('load', function () {
+        window.addEventListener('load', () => {
             updateOnlineStatus();
-
-            fetch('./manifest.json', { method: 'HEAD', cache: 'no-cache' })
-                .then(() => {
-                    console.log('Conectividade confirmada');
-                })
-                .catch(() => {
-                    console.log('Sem conectividade real');
-                    const indicator = document.getElementById('offlineIndicator');
-                    indicator.style.display = 'block';
-                    indicator.textContent = '📱 Modo Offline';
-                });
+            fetch('./manifest.json', { method: 'HEAD', cache: 'no-cache' }).catch(() => document.getElementById('offlineIndicator').style.display = 'block');
         });
-
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
-        updateOnlineStatus(); 
-        
-        // Carregar sites ao iniciar
-        (async () => {
-            await loadSites();
-        })();
+
+        // START!
+        (async () => { await loadSites(); })();
     </script>
 </body>
+
 </html>
