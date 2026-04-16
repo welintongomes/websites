@@ -1,8 +1,8 @@
-const CACHE_NAME = 'sites-manager-v1';
+const CACHE_NAME = 'sites-manager-v9';
 const urlsToCache = [
   './',
   './index.html',
-  './jszipMin.min.js'
+  './jszip.min.js'
 
 ];
 
