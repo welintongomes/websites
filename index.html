@@ -217,6 +217,16 @@
             white-space: normal;
             word-break: break-word;
             overflow-wrap: break-word;
+            cursor: pointer; /* Adicionado: Mostra a mãozinha de clique */
+            transition: all 0.3s ease; /* Adicionado: Deixa a mudança de cor suave */
+            display: inline-block; /* Garante que o clique seja só no texto */
+        }
+
+        /* Adicionado: Brilho forte ao passar o dedo/mouse no título */
+        .site-card h3:hover {
+            color: #ffffff;
+            text-shadow: 0 0 20px var(--neon-cyan), 0 0 30px var(--neon-magenta);
+            transform: scale(1.02);
         }
 
         .site-card p {
@@ -806,8 +816,7 @@
             <button class="btn btn-secondary" onclick="openExportAllModal()" style="margin-left: 10px;">Exportar Sites</button>
             <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()"
                 style="margin-left: 10px;">Importar Sites</button>
-            <input type="file" id="importFile" accept=".json, .zip" style="display: none;" onchange="importSites(event)">
-        </div>
+            <input type="file" id="importFile" accept=".json, .zip, .html" multiple style="display: none;" onchange="importSites(event)">        </div>
         <button class="add-site-btn" onclick="openAddSiteModal()">+</button>
         <button class="search-random-btn" onclick="startVoiceSearch()">🎤</button>
 
@@ -1119,7 +1128,7 @@
                 card.className = 'site-card';
                 // MODIFICADO: Adicionado botão Exportar no cartão
                 card.innerHTML = `
-            <h3>${site.name}</h3>
+            <h3 onclick="openSite(${index})" title="Clique para abrir a ferramenta">${site.name}</h3>
             <p>${site.description || 'Sem descrição'}</p>
             <div class="site-actions">
                 <button class="btn btn-primary" onclick="openSite(${index})">Abrir</button>
@@ -1189,7 +1198,7 @@
                 card.className = 'site-card';
                 // MODIFICADO: Adicionado botão Exportar
                 card.innerHTML = `
-                    <h3>${site.name}</h3>
+                    <h3 onclick="openSite(${originalIndex})" title="Clique para abrir a ferramenta">${site.name}</h3>
                     <p>${site.description || 'Sem descrição'}</p>
                     <div class="site-actions">
                         <button class="btn btn-primary" onclick="openSite(${originalIndex})">Abrir</button>
@@ -1202,7 +1211,7 @@
             });
         }
 
-        // Abrir site em tela cheia
+// Abrir site em tela cheia
         function openSite(index) {
             currentSiteIndex = index;
             lastOpenedSiteIndex = index;
@@ -1216,11 +1225,27 @@
             iframe.srcdoc = site.code;
 
             document.getElementById('fullscreenOverlay').style.display = 'block';
+            
+            // 💤 HIBERNAÇÃO CORRIGIDA: Oculta os itens um por um para não esconder o overlay
+            document.querySelector('.container').style.display = 'none';
+            document.querySelector('.search-container').style.display = 'none';
+            document.querySelector('.fundo').style.display = 'none';
+            document.querySelector('.add-site-btn').style.display = 'none';
+            document.querySelector('.search-random-btn').style.display = 'none';
         }
 
-        // Fechar tela cheia
+       
+// Fechar tela cheia e Acordar o sistema
         function closeFullscreen() {
             const iframe = document.getElementById('siteFrame');
+            
+            // ☀️ ACORDAR O SISTEMA: Devolve o padrão original de cada botão
+            document.querySelector('.container').style.display = '';
+            document.querySelector('.search-container').style.display = '';
+            document.querySelector('.fundo').style.display = '';
+            document.querySelector('.add-site-btn').style.display = '';
+            document.querySelector('.search-random-btn').style.display = '';
+            
             iframe.srcdoc = '';
             iframe.src = 'about:blank'; 
             document.getElementById('fullscreenOverlay').style.display = 'none';
@@ -1398,18 +1423,44 @@
         // -----------------------------------------------------------
 
         function importSites(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
 
-            const ext = file.name.split('.').pop().toLowerCase();
-            if (ext === 'json') {
-                processJSONImport(file);
-            } else if (ext === 'zip') {
-                processZIPImport(file);
-            } else {
-                alert("Formato inválido. Selecione um arquivo .zip ou .json");
-            }
+            // Loop para suportar a importação de VÁRIOS arquivos ao mesmo tempo!
+            Array.from(files).forEach(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (ext === 'json') {
+                    processJSONImport(file);
+                } else if (ext === 'zip') {
+                    processZIPImport(file);
+                } else if (ext === 'html') {
+                    processHTMLImport(file); // Nova rota para o .html
+                } else {
+                    alert(`O arquivo ${file.name} tem um formato inválido. Selecione .zip, .json ou .html`);
+                }
+            });
             event.target.value = '';
+        }
+
+        // NOVA FUNÇÃO: Ler arquivos .html soltos e transformar em ferramenta
+        function processHTMLImport(file) {
+            const reader = new FileReader();
+            reader.onload = async e => {
+                const htmlContent = e.target.result;
+                // Usa o nome do arquivo como nome da ferramenta (tirando o .html e underlines)
+                const siteName = file.name.replace('.html', '').replace(/_/g, ' ');
+                
+                const newSite = {
+                    name: siteName,
+                    description: 'Página física importada (.html)',
+                    code: htmlContent
+                };
+                
+                sites.push(newSite);
+                await saveSites();
+                renderSites();
+            };
+            reader.readAsText(file);
         }
 
         function processJSONImport(file) {
